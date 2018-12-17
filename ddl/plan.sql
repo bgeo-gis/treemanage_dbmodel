@@ -62,6 +62,6 @@ ALTER TABLE ONLY planning_unit ALTER COLUMN id SET DEFAULT nextval('planning_uni
 --create index
 -----------------
 
-CREATE INDEX planning_mu_id_index ON arbrat_viari_test.planning USING btree (mu_id);
-CREATE INDEX planning_work_id_index ON arbrat_viari_test.planning USING btree (work_id);
-CREATE INDEX planning_campaign_id_index ON arbrat_viari_test.planning USING btree (campaign_id);
+CREATE INDEX planning_mu_id_index ON planning USING btree (mu_id);
+CREATE INDEX planning_work_id_index ON planning USING btree (work_id);
+CREATE INDEX planning_campaign_id_index ON planning USING btree (campaign_id);

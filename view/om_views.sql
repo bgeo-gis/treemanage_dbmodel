@@ -79,3 +79,37 @@ CREATE VIEW v_ui_om_visitman_x_node AS
     v_ui_om_visit_x_node.form_type
    FROM (v_ui_om_visit_x_node
      JOIN om_visit_cat ON ((om_visit_cat.id = v_ui_om_visit_x_node.visitcat_id)));
+
+
+DROP VIEW IF EXISTS v_om_visit_work_x_node_dates;
+
+CREATE OR REPLACE VIEW v_om_visit_work_x_node_dates AS 
+ SELECT DISTINCT row_number() OVER (ORDER BY node.mu_id) AS row_number,
+    node.node_id,
+    node.mu_id AS poblacion_id,
+    concat(cat_location.street_name, ' - ', cat_species.species) AS poblacion_name,
+    cat_size.name AS tamano,
+    om_visit_event.parameter_id,
+        CASE
+            WHEN om_visit_event.value IS NOT NULL THEN om_visit_event.value
+            ELSE om_visit_event.tstamp::date::text
+        END AS poda_data,
+    cat_builder.name AS builder,
+    planning.plan_code,
+    cat_campaign.id AS campana,
+    om_visit_work_x_node.price AS precio,
+    node.the_geom
+   FROM selector_date,
+    node
+     JOIN om_visit_x_node ON om_visit_x_node.node_id::text = node.node_id::text
+     JOIN om_visit_event ON om_visit_event.visit_id = om_visit_x_node.visit_id
+     JOIN cat_mu ON cat_mu.id = node.mu_id
+     LEFT JOIN cat_species ON cat_mu.species_id = cat_species.id
+     LEFT JOIN cat_location ON cat_mu.location_id = cat_location.id
+     LEFT JOIN cat_work ON cat_work.parameter_id::text = om_visit_event.parameter_id::text
+     LEFT JOIN om_visit_work_x_node ON om_visit_work_x_node.event_id = om_visit_event.id
+     LEFT JOIN cat_builder ON cat_builder.id = om_visit_work_x_node.builder_id
+     LEFT JOIN cat_size ON cat_size.id = node.size_id
+     LEFT JOIN cat_campaign ON om_visit_event.value::date > cat_campaign.start_date AND om_visit_event.value::date < cat_campaign.end_date OR om_visit_event.tstamp::date > cat_campaign.start_date AND om_visit_event.tstamp::date < cat_campaign.end_date AND om_visit_event.value IS NULL
+     LEFT JOIN planning ON node.mu_id = planning.mu_id AND cat_work.id = planning.work_id AND om_visit_event.value::date > planning.plan_month_start AND om_visit_event.value::date < planning.plan_month_end OR om_visit_event.tstamp::date > planning.plan_month_start AND om_visit_event.tstamp::date < planning.plan_month_end AND om_visit_event.value IS NULL
+  WHERE om_visit_event.value::date > selector_date.from_date AND om_visit_event.value::date < selector_date.to_date AND selector_date.cur_user = "current_user"()::text OR om_visit_event.tstamp::date > selector_date.from_date AND om_visit_event.tstamp::date < selector_date.to_date AND selector_date.cur_user = "current_user"()::text AND om_visit_event.value IS NULL;

@@ -1,3 +1,5 @@
+SET search_path='SCHEMA_NAME',public;
+
 -----------------
 --sequences
 -----------------

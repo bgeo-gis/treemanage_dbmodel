@@ -222,6 +222,18 @@ CREATE TABLE verify_node
   location_id_new integer,
   verify_id integer
 );
+
+
+-- DROP TABLE ws_sample.selector_date;
+
+CREATE TABLE selector_date
+( id serial NOT NULL PRIMARY KEY,
+  from_date date,
+  to_date date,
+  context character varying(30),
+  cur_user text
+);
+
 -----------------
 --add sequence to table
 -----------------
@@ -248,19 +260,19 @@ ALTER TABLE ONLY review_node ALTER COLUMN id SET DEFAULT nextval('review_node_id
 --create index
 -----------------
 
-CREATE INDEX node_mu_id_index ON arbrat_viari_test.node USING btree (mu_id);
-CREATE INDEX node_location_id_index ON arbrat_viari_test.node USING btree (location_id);
-CREATE INDEX node_species_id_index ON arbrat_viari_test.node USING btree (species_id);
-CREATE INDEX node_work_id_index ON arbrat_viari_test.node USING btree (work_id);
-CREATE INDEX node_mwork_id2_index ON arbrat_viari_test.node USING btree (work_id2);
-CREATE INDEX node_size_id_index ON arbrat_viari_test.node USING btree (size_id);
-CREATE INDEX node_builder_id_index ON arbrat_viari_test.node USING btree (builder_id);
+CREATE INDEX node_mu_id_index ON node USING btree (mu_id);
+CREATE INDEX node_location_id_index ON node USING btree (location_id);
+CREATE INDEX node_species_id_index ON node USING btree (species_id);
+CREATE INDEX node_work_id_index ON node USING btree (work_id);
+CREATE INDEX node_mwork_id2_index ON node USING btree (work_id2);
+CREATE INDEX node_size_id_index ON node USING btree (size_id);
+CREATE INDEX node_builder_id_index ON node USING btree (builder_id);
 
 
-CREATE INDEX cat_mu_species_id_index ON arbrat_viari_test.cat_mu USING btree (species_id);
-CREATE INDEX cat_mu_location_id_index ON arbrat_viari_test.cat_mu USING btree (location_id);
-CREATE INDEX cat_mu_work_id_index ON arbrat_viari_test.cat_mu USING btree (work_id);
+CREATE INDEX cat_mu_species_id_index ON cat_mu USING btree (species_id);
+CREATE INDEX cat_mu_location_id_index ON cat_mu USING btree (location_id);
+CREATE INDEX cat_mu_work_id_index ON cat_mu USING btree (work_id);
 
-CREATE INDEX cat_price_work_id_index ON arbrat_viari_test.cat_price USING btree (work_id);
-CREATE INDEX cat_price_size_id_index ON arbrat_viari_test.cat_price USING btree (size_id);
-CREATE INDEX cat_price_campaign_id_index ON arbrat_viari_test.cat_price USING btree (campaign_id);
+CREATE INDEX cat_price_work_id_index ON cat_price USING btree (work_id);
+CREATE INDEX cat_price_size_id_index ON cat_price USING btree (size_id);
+CREATE INDEX cat_price_campaign_id_index ON cat_price USING btree (campaign_id);

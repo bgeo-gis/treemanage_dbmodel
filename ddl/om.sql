@@ -96,7 +96,7 @@ CREATE TABLE om_visit (
     user_name character varying(50) DEFAULT "current_user"(),
     webclient_id character varying(50),
     expl_id integer,
-    the_geom public.geometry(Point,25831),
+    the_geom public.geometry(Point,SRID_VALUE),
     descript text,
     is_done boolean
 );

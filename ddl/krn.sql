@@ -115,11 +115,14 @@ CREATE TABLE cat_development (
 
 CREATE TABLE cat_location (
     id integer NOT NULL PRIMARY KEY,
+    code character varying(50),
     street_name character varying(150),
     location_type character varying(150),
     street_name_old character varying(150),
     street_name_concat character varying(200),
-    situation character varying(150)
+    situation character varying(150),
+    the_geom_line public.geometry(LineString,SRID_VALUE),
+    the_geom_pol public.geometry(Polygon,SRID_VALUE)
 );
 
 CREATE TABLE cat_mu (
@@ -174,6 +177,7 @@ CREATE TABLE cat_verify(
 
 CREATE TABLE node (
     node_id character varying(16) DEFAULT nextval('node_id_seq'::regclass) NOT NULL PRIMARY KEY,
+    code character varying(30),
     mu_id integer,
     location_id integer,
     species_id integer,
@@ -182,7 +186,7 @@ CREATE TABLE node (
     size_id integer,
     plant_date date,
     observ text,
-    the_geom public.geometry(Point,25831),
+    the_geom public.geometry(Point,SRID_VALUE),
     state_id integer,
     price_id integer,
     inventory boolean,
@@ -202,7 +206,7 @@ CREATE TABLE review_node (
     size_id integer,
     plant_date date,
     observ text,
-    the_geom public.geometry(Point,25831),
+    the_geom public.geometry(Point,SRID_VALUE),
     state_id integer,
     price_id integer,
     tstamp timestamp without time zone DEFAULT now(),
@@ -224,7 +228,7 @@ CREATE TABLE verify_node
 );
 
 
--- DROP TABLE ws_sample.selector_date;
+-- DROP TABLE selector_date;
 
 CREATE TABLE selector_date
 ( id serial NOT NULL PRIMARY KEY,
@@ -234,6 +238,23 @@ CREATE TABLE selector_date
   cur_user text
 );
 
+--barrios
+CREATE TABLE cat_zone
+(id integer NOT NULL PRIMARY KEY,
+code character varying(30),
+name character varying(150),
+descript text,
+the_geom public.geometry(Polygon,SRID_VALUE)
+);
+
+CREATE TABLE cat_address
+(id integer NOT NULL PRIMARY KEY,
+code character varying(50),
+cat_zone integer,
+location_id integer,
+street_number character varying(200),
+the_geom public.geometry(Point,SRID_VALUE)
+);
 -----------------
 --add sequence to table
 -----------------

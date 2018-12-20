@@ -34,7 +34,7 @@ $BODY$
 
 
 
-DROP TRIGGER trg_edit_verify_node ON SCHEMA_NAME.v_edit_verify_node;
+DROP TRIGGER IF EXISTS trg_edit_verify_node ON SCHEMA_NAME.v_edit_verify_node;
 
 CREATE TRIGGER trg_edit_verify_node INSTEAD OF UPDATE ON SCHEMA_NAME.v_edit_verify_node
   FOR EACH ROW EXECUTE PROCEDURE SCHEMA_NAME.trg_edit_verify_node();

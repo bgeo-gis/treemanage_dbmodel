@@ -4,6 +4,7 @@ SET search_path='SCHEMA_NAME',public;
 DROP VIEW IF EXISTS v_edit_node;
 CREATE VIEW v_edit_node AS
  SELECT node.node_id,
+ node.code,
     node.mu_id,
     concat(cat_location.street_name, ' - ', cat_species.species) AS poblacion,
     node.location_id,
@@ -65,3 +66,13 @@ CREATE OR REPLACE VIEW v_edit_verify_node AS
      JOIN cat_location location_new ON location_new.id = verify_node.location_id_new
      JOIN node ON node.node_id::text = verify_node.node_id::text
   WHERE verify_node.verify_id IS NULL OR verify_node.verify_id = 3;
+
+
+DROP VIEW IF EXISTS v_review_cat_mu;
+  CREATE OR REPLACE VIEW v_review_cat_mu AS 
+ SELECT cat_mu.id,
+    cat_mu.location_id,
+    cat_mu.species_id,
+    cat_mu.work_id
+   FROM arbrat_viari.cat_mu
+  WHERE cat_mu.work_id IS NULL;

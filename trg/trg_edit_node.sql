@@ -36,9 +36,9 @@ END IF;
 SELECT id INTO mu_aux FROM cat_mu WHERE location_id = NEW.location_id AND species_id=NEW.species_id;
 
 --insert data into node table
- INSERT INTO  node (node_id,mu_id,location_id, species_id, work_id, work_id2, size_id, plant_date, observ, 
+ INSERT INTO  node (node_id,code,mu_id,location_id, species_id, work_id, work_id2, size_id, plant_date, observ, 
  			the_geom, state_id,price_id, inventory)
- VALUES (NEW.node_id, mu_aux,NEW.location_id, NEW.species_id, NEW.work_id, NEW.work_id2, NEW.size_id,  NEW.plant_date, NEW.observ,
+ VALUES (NEW.node_id,NEW.code, mu_aux,NEW.location_id, NEW.species_id, NEW.work_id, NEW.work_id2, NEW.size_id,  NEW.plant_date, NEW.observ,
   		NEW.the_geom,1,NEW.price_id,  NEW.inventory);
  
 --insert data into review_node table for the traceability of data change
@@ -69,7 +69,7 @@ RETURN NEW;
 --Update node table.
  	UPDATE node SET location_id=NEW.location_id, species_id=NEW.species_id,size_id=NEW.size_id, 
  	plant_date=NEW.plant_date, observ=NEW.observ, the_geom=NEW.the_geom, state_id=NEW.state_id, mu_id=mu_aux, work_id2=NEW.work_id2,
-	inventory= NEW.inventory
+	inventory= NEW.inventory, code=NEW.code
  	WHERE node_id=NEW.node_id;
 --Insert changed data into review_node table
  	INSERT INTO  review_node (node_id,cur_user,the_geom, location_id,species_id, geom_changed, size_id, plant_date, observ,state_id) 

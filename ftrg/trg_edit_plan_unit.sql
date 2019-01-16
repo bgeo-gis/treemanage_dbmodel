@@ -43,8 +43,5 @@ $BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
 
-DROP TRIGGER IF EXISTS trg_edit_plan_unit ON SCHEMA_NAME.v_ui_planning_unit;
 
-CREATE TRIGGER trg_edit_plan_unit INSTEAD OF INSERT OR UPDATE OR DELETE 
-ON SCHEMA_NAME.v_ui_planning_unit FOR EACH ROW EXECUTE PROCEDURE SCHEMA_NAME.trg_edit_plan_unit();
 

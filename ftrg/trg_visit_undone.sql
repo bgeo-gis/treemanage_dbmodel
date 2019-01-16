@@ -39,6 +39,3 @@ $BODY$
   COST 100;
 
 
-DROP TRIGGER IF EXISTS trg_visit_undone ON SCHEMA_NAME.om_visit_event;
-CREATE TRIGGER trg_visit_undone AFTER INSERT OR UPDATE OR DELETE ON SCHEMA_NAME.om_visit_event
-  FOR EACH ROW EXECUTE PROCEDURE SCHEMA_NAME.trg_visit_undone('om_visit_event');

@@ -30,8 +30,4 @@ ALTER FUNCTION SCHEMA_NAME.trg_edit_price()
   OWNER TO geoadmin;
 
 
-DROP TRIGGER IF EXISTS trg_edit_price ON SCHEMA_NAME.v_edit_price;
-
-CREATE TRIGGER trg_edit_price INSTEAD OF INSERT OR UPDATE OR DELETE ON SCHEMA_NAME.v_edit_price
-FOR EACH ROW EXECUTE PROCEDURE SCHEMA_NAME.trg_edit_price('');
 

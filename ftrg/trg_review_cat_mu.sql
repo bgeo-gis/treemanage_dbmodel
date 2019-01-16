@@ -27,5 +27,3 @@ $BODY$
   
   
   
-DROP TRIGGER IF EXISTS trg_review_cat_mu ON "SCHEMA_NAME".v_review_cat_mu;
-CREATE TRIGGER trg_review_cat_mu INSTEAD OF UPDATE ON "SCHEMA_NAME".v_review_cat_mu FOR EACH ROW EXECUTE PROCEDURE "SCHEMA_NAME".trg_review_cat_mu('');

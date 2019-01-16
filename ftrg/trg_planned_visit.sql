@@ -99,8 +99,3 @@
 	$BODY$
 	  LANGUAGE plpgsql VOLATILE
 	  COST 100;
-
-	DROP TRIGGER IF EXISTS trg_planned_visit ON SCHEMA_NAME.om_visit_event;
-
-	CREATE TRIGGER trg_planned_visit AFTER INSERT OR UPDATE OR DELETE ON SCHEMA_NAME.om_visit_event
-	  FOR EACH ROW EXECUTE PROCEDURE SCHEMA_NAME.trg_planned_visit('om_visit_event');

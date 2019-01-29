@@ -24,7 +24,7 @@ CREATE VIEW v_edit_node AS
      LEFT JOIN cat_species ON ((node.species_id = cat_species.id)))
      LEFT JOIN cat_location ON ((node.location_id = cat_location.id)))
      LEFT JOIN cat_development ON ((((cat_species.development_name)::text = (cat_development.name)::text) AND (node.size_id = cat_development.size_id))))
-  WHERE node.state=selector_state.state_id AND selector_state.cur_user=current_user;
+  WHERE node.state_id=selector_state.state_id AND selector_state.cur_user=current_user;
 
 
 DROP VIEW IF EXISTS v_plantacion;

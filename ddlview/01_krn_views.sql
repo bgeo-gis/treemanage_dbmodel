@@ -4,9 +4,8 @@ SET search_path='SCHEMA_NAME',public;
 DROP VIEW IF EXISTS v_edit_node;
 CREATE VIEW v_edit_node AS
  SELECT node.node_id,
- node.code,
     node.mu_id,
-    concat(cat_location.street_name, ' - ', cat_species.species) AS poblacion,
+    concat(cat_location.street_name, ' - ', cat_species.species) AS mu_name,
     node.location_id,
     cat_location.situation,
     node.species_id,
@@ -21,18 +20,18 @@ CREATE VIEW v_edit_node AS
     node.state_id,
     node.price_id,
     node.inventory
-   FROM (((node
+   FROM selector_state, (((node
      LEFT JOIN cat_species ON ((node.species_id = cat_species.id)))
      LEFT JOIN cat_location ON ((node.location_id = cat_location.id)))
      LEFT JOIN cat_development ON ((((cat_species.development_name)::text = (cat_development.name)::text) AND (node.size_id = cat_development.size_id))))
-  WHERE (node.state_id = 1);
+  WHERE node.state=selector_state.state_id AND selector_state.cur_user=current_user;
 
 
 DROP VIEW IF EXISTS v_plantacion;
-CREATE VIEW v_plantacion AS
+CREATE VIEW v_plant AS
  SELECT node.node_id,
     node.mu_id,
-    concat(cat_location.street_name, ' - ', cat_species.species) AS poblacion,
+    concat(cat_location.street_name, ' - ', cat_species.species) AS mu_name,
     node.location_id,
     cat_location.situation,
     node.species_id,

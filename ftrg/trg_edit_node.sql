@@ -3,6 +3,7 @@
 Triggers activates itselfs on doing one of the listed actions on the view v_edit_node.
 */
 -- DROP FUNCTION SCHEMA_NAME.trg_edit_node();
+-- Function: SCHEMA_NAME.trg_edit_node()
 
 CREATE OR REPLACE FUNCTION SCHEMA_NAME.trg_edit_node()
   RETURNS trigger AS
@@ -36,14 +37,14 @@ END IF;
 SELECT id INTO mu_aux FROM cat_mu WHERE location_id = NEW.location_id AND species_id=NEW.species_id;
 
 --insert data into node table
- INSERT INTO  node (node_id,code,mu_id,location_id, species_id, work_id, work_id2, size_id, plant_date, observ, 
+ INSERT INTO  node (node_id,mu_id,location_id, species_id, work_id, work_id2, size_id, plant_date, observ, 
  			the_geom, state_id,price_id, inventory)
- VALUES (NEW.node_id,NEW.code, mu_aux,NEW.location_id, NEW.species_id, NEW.work_id, NEW.work_id2, NEW.size_id,  NEW.plant_date, NEW.observ,
-  		NEW.the_geom,1,NEW.price_id,  NEW.inventory);
+ VALUES (NEW.node_id, mu_aux,NEW.location_id, NEW.species_id, NEW.work_id, NEW.work_id2, NEW.size_id,  NEW.plant_date, NEW.observ,
+  		NEW.the_geom,NEW.state_id,NEW.price_id,  NEW.inventory);
  
 --insert data into review_node table for the traceability of data change
  INSERT INTO  review_node (node_id, location_id, species_id, size_id, plant_date, observ, the_geom, state_id,cur_user)
- VALUES (NEW.node_id, NEW.location_id, NEW.species_id, NEW.size_id, NEW.plant_date, concat('Arbre nou.',NEW.observ), NEW.the_geom,1, current_user);
+ VALUES (NEW.node_id, NEW.location_id, NEW.species_id, NEW.size_id, NEW.plant_date, concat('Arbre nou.',NEW.observ), NEW.the_geom,NEW.state_id, current_user);
 
 
 RETURN NEW;
@@ -69,8 +70,13 @@ RETURN NEW;
 --Update node table.
  	UPDATE node SET location_id=NEW.location_id, species_id=NEW.species_id,size_id=NEW.size_id, 
  	plant_date=NEW.plant_date, observ=NEW.observ, the_geom=NEW.the_geom, state_id=NEW.state_id, mu_id=mu_aux, work_id2=NEW.work_id2,
-	inventory= NEW.inventory, code=NEW.code
+	inventory= NEW.inventory
  	WHERE node_id=NEW.node_id;
+--Automatic update of state of planified nodes.
+ 	IF OLD.plant_date is null AND NEW.plant_date is not null AND OLD.state_id=2 THEN
+ 		UPDATE node SET state_id=1 WHERE node_id=NEW.node_id; 
+ 	END IF;
+
 --Insert changed data into review_node table
  	INSERT INTO  review_node (node_id,cur_user,the_geom, location_id,species_id, geom_changed, size_id, plant_date, observ,state_id) 
  	VALUES (OLD.node_id,current_user, OLD.the_geom,
@@ -99,6 +105,7 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
+
 
 
 

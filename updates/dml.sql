@@ -83,3 +83,8 @@ INSERT INTO audit_cat_table VALUES ('v_campanya_2018_2019', NULL, NULL, NULL, NU
 INSERT INTO audit_cat_table VALUES ('om_visit_cat', NULL, NULL, 'role_admin', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO audit_cat_table VALUES ('config_param_user', NULL, NULL, 'role_basic', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO audit_cat_table VALUES ('config_param_system', NULL, NULL, 'role_edit', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+
+
+INSERT INTO config_param_system VALUES (39, 'sys_role_permissions', TRUE, NULL,NULL, NULL);
+INSERT INTO config_param_system VALUES (40, 'sys_api_service', TRUE, NULL,NULL, NULL);
+INSERT INTO config_param_system VALUES (41, 'api_publish_user', 'qgisserver', NULL,NULL, NULL);

@@ -2,17 +2,15 @@ SET search_path='SCHEMA_NAME',public;
 
 
 CREATE TABLE selector_state
-( id serial NOT NULL PRIMARY KEY,
-  state_id integer,
-  cur_user text
+(  state_id integer,
+  cur_user text,
+  CONSTRAINT selector_state_pkey PRIMARY KEY (state_id,cur_user)
 );
 
 CREATE TABLE selector_campaign
-(
-  id serial NOT NULL,
-  campaign_id integer,
+( campaign_id integer,
   cur_user text,
-  CONSTRAINT selector_campaign_pkey PRIMARY KEY (id)
+  CONSTRAINT selector_campaign_pkey PRIMARY KEY (campaign_id,cur_user)
 );
 
 CREATE TABLE audit_cat_table (
@@ -27,4 +25,11 @@ CREATE TABLE audit_cat_table (
     qgis_message text,
     sys_sequence text,
     sys_sequence_field text
+);
+
+
+CREATE TABLE selector_species
+( species_id integer,
+  cur_user text,
+  CONSTRAINT selector_species_pkey PRIMARY KEY (species_id,cur_user)
 );

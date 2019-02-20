@@ -91,7 +91,7 @@ INSERT INTO audit_cat_table VALUES ('sys_feature_cat', NULL, NULL, 'role_admin',
 INSERT INTO audit_cat_table VALUES ('version_tm', NULL, NULL, 'role_admin', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO audit_cat_table VALUES ('cat_builder', NULL, NULL, 'role_edit', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO audit_cat_table VALUES ('cat_work', NULL, NULL, 'role_edit', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO audit_cat_table VALUES ('cat_state', NULL, NULL, 'role_edit', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO audit_cat_table VALUES ('value_state', NULL, NULL, 'role_edit', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO audit_cat_table VALUES ('cat_species', NULL, NULL, 'role_edit', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO audit_cat_table VALUES ('cat_size', NULL, NULL, 'role_edit', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO audit_cat_table VALUES ('cat_price', NULL, NULL, 'role_edit', NULL, NULL, NULL, NULL, NULL, NULL, NULL);

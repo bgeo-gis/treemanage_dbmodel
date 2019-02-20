@@ -274,3 +274,22 @@ CREATE OR REPLACE VIEW v_trim_executed AS
    om_visit_event.value IS NULL AND om_visit_event.tstamp::timestamp::date >= selector_date.from_date AND om_visit_event.tstamp::timestamp::date <= selector_date.to_date)
   AND parameter_id ilike 'poda%' AND cur_user=current_user ORDER BY node.mu_id;
 
+
+CREATE OR REPLACE VIEW v_review_node AS 
+ SELECT review_node.id,
+    review_node.node_id,
+    cat_location.street_name,
+    cat_species.species,
+    cat_size.name AS size,
+    review_node.plant_date,
+    review_node.observ,
+    review_node.the_geom,
+    value_state.name AS state,
+    review_node.geom_changed,
+    review_node.tstamp,
+    review_node.cur_user
+   FROM review_node
+     LEFT JOIN value_state ON review_node.state_id = value_state.id
+     LEFT JOIN cat_size ON review_node.size_id = cat_size.id
+     LEFT JOIN cat_species ON review_node.species_id = cat_species.id
+     LEFT JOIN cat_location ON review_node.location_id = cat_location.id;

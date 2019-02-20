@@ -80,3 +80,56 @@ CREATE OR REPLACE VIEW v_ultimas_plantaciones AS
             WHEN node.plant_date >= '2017-09-01'::date AND node.plant_date < '2018-09-01'::date THEN '2017/2018'::text
             ELSE NULL::text
         END);
+
+---
+
+-- View: v_web_*
+
+CREATE OR REPLACE VIEW v_web_node AS 
+ SELECT node.node_id AS nid,
+    'TREE'::text AS custom_type
+   FROM node;
+
+-- DROP VIEW v_web_plant;
+
+CREATE OR REPLACE VIEW v_web_plant AS 
+ SELECT node.node_id,
+    node.mu_id,
+    concat(cat_location.street_name, ' - ', cat_species.species) AS "població",
+    node.location_id as "localització_id",
+    cat_location.situation AS "situació",
+ node.species_id as "especie_id",	
+    node.plant_date AS "data_plantació",
+    node.observ AS "observació"
+   FROM node
+     LEFT JOIN cat_species ON node.species_id = cat_species.id
+     LEFT JOIN cat_location ON node.location_id = cat_location.id
+  WHERE node.state_id = 1 AND node.plant_date IS NOT NULL;
+
+
+
+-- DROP VIEW v_web_review;
+
+CREATE OR REPLACE VIEW v_web_review AS 
+ SELECT review_node.id AS nid,
+    'TREE_REVIEW'::text AS custom_type
+   FROM review_node;
+-- DROP VIEW v_review_node;
+
+CREATE OR REPLACE VIEW v_web_review_node AS 
+ SELECT review_node.id,
+    review_node.node_id,
+    cat_location.street_name as "ubicació",
+    cat_species.species as especie,
+    cat_size.name AS mida,
+    review_node.plant_date as "data plantació",
+    review_node.observ as "observació",
+    value_state.name AS estat,
+    review_node.geom_changed,
+    review_node.tstamp,
+    review_node.cur_user
+   FROM review_node
+     LEFT JOIN value_state ON review_node.state_id = value_state.id
+     LEFT JOIN cat_size ON review_node.size_id = cat_size.id
+     LEFT JOIN cat_species ON review_node.species_id = cat_species.id
+     LEFT JOIN cat_location ON review_node.location_id = cat_location.id;

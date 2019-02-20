@@ -63,7 +63,7 @@ CREATE SEQUENCE cat_species_id_seq
     NO MAXVALUE
     CACHE 1;
 
-CREATE SEQUENCE cat_state_id_seq
+CREATE SEQUENCE value_state_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -155,7 +155,7 @@ CREATE TABLE cat_species (
 );
 
 
-CREATE TABLE cat_state (
+CREATE TABLE value_state (
     id integer NOT NULL PRIMARY KEY,
     name character varying(150)
 );
@@ -271,7 +271,7 @@ ALTER TABLE ONLY cat_size ALTER COLUMN id SET DEFAULT nextval('cat_size_id_seq':
 
 ALTER TABLE ONLY cat_species ALTER COLUMN id SET DEFAULT nextval('cat_species_id_seq'::regclass);
 
-ALTER TABLE ONLY cat_state ALTER COLUMN id SET DEFAULT nextval('cat_state_id_seq'::regclass);
+ALTER TABLE ONLY value_state ALTER COLUMN id SET DEFAULT nextval('value_state_id_seq'::regclass);
 
 ALTER TABLE ONLY cat_work ALTER COLUMN id SET DEFAULT nextval('cat_work_id_seq'::regclass);
 

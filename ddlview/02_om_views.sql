@@ -113,3 +113,140 @@ CREATE OR REPLACE VIEW v_om_visit_work_x_node_dates AS
      LEFT JOIN cat_campaign ON om_visit_event.value::date > cat_campaign.start_date AND om_visit_event.value::date < cat_campaign.end_date OR om_visit_event.tstamp::date > cat_campaign.start_date AND om_visit_event.tstamp::date < cat_campaign.end_date AND om_visit_event.value IS NULL
      LEFT JOIN planning ON node.mu_id = planning.mu_id AND cat_work.id = planning.work_id AND om_visit_event.value::date > planning.plan_month_start AND om_visit_event.value::date < planning.plan_month_end OR om_visit_event.tstamp::date > planning.plan_month_start AND om_visit_event.tstamp::date < planning.plan_month_end AND om_visit_event.value IS NULL
   WHERE om_visit_event.value::date > selector_date.from_date AND om_visit_event.value::date < selector_date.to_date AND selector_date.cur_user = "current_user"()::text OR om_visit_event.tstamp::date > selector_date.from_date AND om_visit_event.tstamp::date < selector_date.to_date AND selector_date.cur_user = "current_user"()::text AND om_visit_event.value IS NULL;
+
+
+  
+CREATE OR REPLACE VIEW ve_visit_node_insp AS 
+ SELECT om_visit_x_node.visit_id,
+    om_visit_x_node.node_id,
+    om_visit.visitcat_id,
+    om_visit.ext_code,
+    om_visit.startdate,
+    om_visit.enddate,
+    om_visit.user_name,
+    om_visit.webclient_id,
+    om_visit.expl_id,
+    om_visit.the_geom,
+    om_visit.descript,
+    om_visit.is_done,
+    om_visit.class_id,
+    om_visit.lot_id,
+    om_visit.status,
+    a.param_1 AS sediments_node,
+    a.param_2 AS desperfectes_node,
+    a.param_3 AS neteja_node
+   FROM om_visit
+     JOIN om_visit_class ON om_visit_class.id = om_visit.class_id
+     JOIN om_visit_x_node ON om_visit.id = om_visit_x_node.visit_id
+     LEFT JOIN ( SELECT ct.visit_id,
+            ct.param_1,
+            ct.param_2,
+            ct.param_3
+           FROM crosstab('SELECT visit_id, om_visit_event.parameter_id, value 
+            FROM om_visit JOIN om_visit_event ON om_visit.id= om_visit_event.visit_id 
+            JOIN om_visit_class on om_visit_class.id=om_visit.class_id
+            JOIN om_visit_class_x_parameter on om_visit_class_x_parameter.parameter_id=om_visit_event.parameter_id 
+            where om_visit_class.ismultievent = TRUE ORDER  BY 1,2'::text, ' VALUES (''sediments_node''),(''desperfectes_node''),(''neteja_node'')'::text) ct(visit_id integer, param_1 text, param_2 text, param_3 text)) a ON a.visit_id = om_visit.id
+  WHERE om_visit_class.ismultievent = true;
+  
+  
+  
+  
+CREATE OR REPLACE VIEW ve_visit_node_singlevent AS 
+ SELECT om_visit_x_node.visit_id,
+    om_visit_x_node.node_id,
+    om_visit.visitcat_id,
+    om_visit.ext_code,
+    om_visit.startdate,
+    om_visit.enddate,
+    om_visit.user_name,
+    om_visit.webclient_id,
+    om_visit.expl_id,
+    om_visit.the_geom,
+    om_visit.descript,
+    om_visit.is_done,
+    om_visit.class_id,
+    om_visit.lot_id,
+    om_visit.status,
+    --om_visit_event.event_code,
+    om_visit_event.position_id,
+    om_visit_event.position_value,
+    om_visit_event.parameter_id,
+    om_visit_event.value,
+    om_visit_event.value1,
+    om_visit_event.value2,
+    om_visit_event.geom1,
+    om_visit_event.geom2,
+    om_visit_event.geom3,
+    om_visit_event.xcoord,
+    om_visit_event.ycoord,
+    om_visit_event.compass,
+    om_visit_event.tstamp,
+    om_visit_event.text
+   -- om_visit_event.index_val,
+   -- om_visit_event.is_last
+   FROM om_visit
+     JOIN om_visit_event ON om_visit.id = om_visit_event.visit_id
+     JOIN om_visit_x_node ON om_visit.id = om_visit_x_node.visit_id
+     JOIN om_visit_class ON om_visit_class.id = om_visit.class_id
+  WHERE om_visit_class.ismultievent = false;
+  
+  
+  
+  
+CREATE OR REPLACE VIEW ve_visit_noinfra_typea AS 
+ SELECT om_visit.id AS visit_id,
+    om_visit.visitcat_id,
+    om_visit.ext_code,
+    om_visit.startdate,
+    om_visit.enddate,
+    om_visit.user_name,
+    om_visit.webclient_id,
+    om_visit.expl_id,
+    om_visit.the_geom,
+    om_visit.descript,
+    om_visit.is_done,
+    om_visit.class_id,
+    om_visit.lot_id,
+    om_visit.status,
+    a.param_1 AS comentari_typea
+   FROM om_visit
+     JOIN om_visit_class ON om_visit_class.id = om_visit.class_id
+     LEFT JOIN ( SELECT ct.visit_id,
+            ct.param_1
+           FROM crosstab('SELECT visit_id, om_visit_event.parameter_id, value 
+            FROM om_visit JOIN om_visit_event ON om_visit.id= om_visit_event.visit_id 
+            JOIN om_visit_class on om_visit_class.id=om_visit.class_id
+            JOIN om_visit_class_x_parameter on om_visit_class_x_parameter.parameter_id=om_visit_event.parameter_id 
+            where om_visit_class.ismultievent = TRUE ORDER  BY 1,2'::text, ' VALUES (''comentari_typea'')'::text) ct(visit_id integer, param_1 text)) a ON a.visit_id = om_visit.id
+  WHERE om_visit_class.ismultievent = true;
+  
+  
+  
+CREATE OR REPLACE VIEW ve_visit_noinfra_typeb AS 
+ SELECT a.visit_id,
+    om_visit.visitcat_id,
+    om_visit.ext_code,
+    om_visit.startdate,
+    om_visit.enddate,
+    om_visit.user_name,
+    om_visit.webclient_id,
+    om_visit.expl_id,
+    om_visit.the_geom,
+    om_visit.descript,
+    om_visit.is_done,
+    om_visit.class_id,
+    om_visit.lot_id,
+    om_visit.status,
+    a.param_1 AS comentari_typeb
+   FROM om_visit
+     JOIN om_visit_class ON om_visit_class.id = om_visit.class_id
+     LEFT JOIN ( SELECT ct.visit_id,
+            ct.param_1
+           FROM crosstab('SELECT visit_id, om_visit_event.parameter_id, value 
+            FROM om_visit JOIN om_visit_event ON om_visit.id= om_visit_event.visit_id 
+            JOIN om_visit_class on om_visit_class.id=om_visit.class_id
+            JOIN om_visit_class_x_parameter on om_visit_class_x_parameter.parameter_id=om_visit_event.parameter_id 
+            where om_visit_class.ismultievent = TRUE ORDER  BY 1,2'::text, ' VALUES (''comentari_typea'')'::text) ct(visit_id integer, param_1 text)) a ON a.visit_id = om_visit.id
+  WHERE om_visit_class.ismultievent = true;
+  

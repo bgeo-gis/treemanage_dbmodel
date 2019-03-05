@@ -203,7 +203,8 @@ node.the_geom
   --ejecutadas
 
  CREATE OR REPLACE VIEW v_cut_executed AS 
- SELECT DISTINCT ON (om_visit_event.id) om_visit_event.id AS event_id,
+ SELECT row_number() OVER (ORDER BY om_visit_event.id) AS row_id,
+ 	om_visit_event.id AS event_id,
     om_visit.id,
     om_visit_cat.name AS builder,
     om_visit_event.parameter_id,
@@ -229,7 +230,8 @@ node.the_geom
 
 
 CREATE OR REPLACE VIEW v_irrigation_executed AS 
- SELECT DISTINCT ON (om_visit_event.id) om_visit_event.id AS event_id,
+ SELECT row_number() OVER (ORDER BY om_visit_event.id) AS row_id,
+ 	om_visit_event.id AS event_id,
     om_visit.id,
     om_visit_cat.name AS builder,
     om_visit_event.parameter_id,
@@ -255,7 +257,8 @@ CREATE OR REPLACE VIEW v_irrigation_executed AS
 
 
 CREATE OR REPLACE VIEW v_trim_executed AS 
- SELECT DISTINCT ON (om_visit_event.id) om_visit_event.id AS event_id,
+ SELECT row_number() OVER (ORDER BY om_visit_event.id) AS row_id,
+ 	om_visit_event.id AS event_id,
     om_visit.id,
     om_visit_cat.name AS builder,
     om_visit_event.parameter_id,
@@ -278,7 +281,8 @@ CREATE OR REPLACE VIEW v_trim_executed AS
   AND parameter_id ilike 'poda%' AND cur_user=current_user ORDER BY om_visit_event.id, node.mu_id;
 
 CREATE OR REPLACE VIEW v_events_executed AS 
- SELECT DISTINCT ON (om_visit_event.id) om_visit_event.id AS event_id,
+ SELECT row_number() OVER (ORDER BY om_visit_event.id) AS row_id,
+ 	om_visit_event.id AS event_id,
     om_visit.id,
     om_visit_cat.name AS builder,
     om_visit_event.parameter_id,

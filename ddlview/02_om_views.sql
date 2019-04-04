@@ -17,11 +17,11 @@ CREATE VIEW v_om_visit_work_x_node AS
     node.the_geom
    FROM ((((((om_visit_work_x_node
      JOIN node ON (((node.node_id)::text = (om_visit_work_x_node.node_id)::text)))
-     JOIN cat_species ON ((node.species_id = cat_species.id)))
-     JOIN cat_location ON ((node.location_id = cat_location.id)))
-     JOIN cat_size ON ((om_visit_work_x_node.size_id = cat_size.id)))
-     JOIN cat_work ON ((om_visit_work_x_node.work_id = cat_work.id)))
-     JOIN cat_builder ON ((om_visit_work_x_node.builder_id = cat_builder.id)));
+     LEFT JOIN cat_species ON ((node.species_id = cat_species.id)))
+     LEFT JOIN cat_location ON ((node.location_id = cat_location.id)))
+     LEFT JOIN cat_size ON ((om_visit_work_x_node.size_id = cat_size.id)))
+     LEFT JOIN cat_work ON ((om_visit_work_x_node.work_id = cat_work.id)))
+     LEFT JOIN cat_builder ON ((om_visit_work_x_node.builder_id = cat_builder.id)));
 
 
 DROP VIEW IF EXISTS v_ui_om_visit_x_node;
@@ -168,7 +168,9 @@ CREATE OR REPLACE VIEW ve_visit_node_singlevent AS
     om_visit.class_id,
     om_visit.lot_id,
     om_visit.status,
-    --om_visit_event.event_code,
+    om_visit.suspendendcat_id,
+    om_visit_event.id AS event_id,
+    om_visit_event.event_code,
     om_visit_event.position_id,
     om_visit_event.position_value,
     om_visit_event.parameter_id,
@@ -182,13 +184,13 @@ CREATE OR REPLACE VIEW ve_visit_node_singlevent AS
     om_visit_event.ycoord,
     om_visit_event.compass,
     om_visit_event.tstamp,
-    om_visit_event.text
-   -- om_visit_event.index_val,
-   -- om_visit_event.is_last
-   FROM om_visit
-     JOIN om_visit_event ON om_visit.id = om_visit_event.visit_id
-     JOIN om_visit_x_node ON om_visit.id = om_visit_x_node.visit_id
-     JOIN om_visit_class ON om_visit_class.id = om_visit.class_id
+    om_visit_event.text,
+    om_visit_event.index_val,
+    om_visit_event.is_last
+   FROM arbrat_viari_upgrade.om_visit
+     JOIN arbrat_viari_upgrade.om_visit_event ON om_visit.id = om_visit_event.visit_id
+     JOIN arbrat_viari_upgrade.om_visit_x_node ON om_visit.id = om_visit_x_node.visit_id
+     JOIN arbrat_viari_upgrade.om_visit_class ON om_visit_class.id = om_visit.class_id
   WHERE om_visit_class.ismultievent = false;
   
   

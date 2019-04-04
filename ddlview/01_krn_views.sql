@@ -18,14 +18,16 @@ CREATE VIEW v_edit_node AS
     node.plant_date,
     node.observ,
     node.the_geom,
-    node.state_id,
+    node.state_id AS state,
     node.price_id,
-    node.inventory
-   FROM selector_state, selector_species, (((node
-     LEFT JOIN cat_species ON ((node.species_id = cat_species.id)))
-     LEFT JOIN cat_location ON ((node.location_id = cat_location.id)))
-     LEFT JOIN cat_development ON ((((cat_species.development_name)::text = (cat_development.name)::text) AND (node.size_id = cat_development.size_id))))
-  WHERE node.state_id=selector_state.state_id AND selector_state.cur_user=current_user AND node.species_id=selector_species.species_id AND selector_species.cur_user=current_user;
+    node.inventory,
+    'NODE'::text AS feature_type
+   FROM selector_state,
+    node
+     LEFT JOIN cat_species ON node.species_id = cat_species.id
+     LEFT JOIN cat_location ON node.location_id = cat_location.id
+     LEFT JOIN cat_development ON cat_species.development_name::text = cat_development.name::text AND node.size_id = cat_development.size_id
+  WHERE node.state_id = selector_state.state_id AND selector_state.cur_user = "current_user"()::text;
 
 
 DROP VIEW IF EXISTS v_plantacion;
@@ -255,10 +257,9 @@ CREATE OR REPLACE VIEW v_irrigation_executed AS
 
 
 
-
 CREATE OR REPLACE VIEW v_trim_executed AS 
  SELECT row_number() OVER (ORDER BY om_visit_event.id) AS row_id,
- 	om_visit_event.id AS event_id,
+    om_visit_event.id AS event_id,
     om_visit.id,
     om_visit_cat.name AS builder,
     om_visit_event.parameter_id,
@@ -267,18 +268,19 @@ CREATE OR REPLACE VIEW v_trim_executed AS
     node.node_id,
     node.mu_id,
     concat(cat_location.street_name, ' - ', cat_species.species) AS mu_name,
-    node.the_geom
-   FROM selector_date, om_visit
+    node.the_geom,
+    om_visit_cat.id AS expl_id
+   FROM selector_date, selector_expl,  om_visit
      LEFT JOIN om_visit_event ON om_visit.id = om_visit_event.visit_id
      LEFT JOIN om_visit_x_node ON om_visit.id = om_visit_x_node.visit_id
      JOIN node ON node.node_id::text = om_visit_x_node.node_id::text
      JOIN om_visit_cat ON om_visit_cat.id = om_visit.visitcat_id
-       LEFT JOIN cat_mu ON node.mu_id = cat_mu.id
-  LEFT JOIN cat_species ON cat_mu.species_id = cat_species.id
-  LEFT JOIN cat_location ON cat_mu.location_id = cat_location.id
-  WHERE (om_visit_event.value IS NOT NULL AND om_visit_event.value!='2018' and om_visit_event.value::date::text >= selector_date.from_date::text AND om_visit_event.value::date::text <= selector_date.to_date::text or
-   om_visit_event.value IS NULL AND om_visit_event.tstamp::timestamp::date >= selector_date.from_date AND om_visit_event.tstamp::timestamp::date <= selector_date.to_date)
-  AND parameter_id ilike 'poda%' AND cur_user=current_user ORDER BY om_visit_event.id, node.mu_id;
+     LEFT JOIN cat_mu ON node.mu_id = cat_mu.id
+     LEFT JOIN cat_species ON cat_mu.species_id = cat_species.id
+     LEFT JOIN cat_location ON cat_mu.location_id = cat_location.id
+  WHERE om_visit_event.value::date::text > selector_date.from_date::text AND om_visit_event.value::date::text < selector_date.to_date::text AND selector_expl.expl_id = om_visit_cat.id AND om_visit_event.parameter_id::text ~~* 'poda%'::text AND selector_expl.cur_user = "current_user"()::text AND selector_date.cur_user = "current_user"()::text
+  ORDER BY om_visit_event.id, node.mu_id;
+
 
 CREATE OR REPLACE VIEW v_events_executed AS 
  SELECT row_number() OVER (ORDER BY om_visit_event.id) AS row_id,

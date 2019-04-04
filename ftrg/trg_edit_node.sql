@@ -1,7 +1,8 @@
--- Function: SCHEMA_NAME.trg_edit_node()
+
 /*Goal:Function allows to insert, update and delete data into node table. It generates new registers in cat_mu based on the values of location and species.
 Triggers activates itselfs on doing one of the listed actions on the view v_edit_node.
 */
+
 -- DROP FUNCTION SCHEMA_NAME.trg_edit_node();
 -- Function: SCHEMA_NAME.trg_edit_node()
 
@@ -40,11 +41,12 @@ SELECT id INTO mu_aux FROM cat_mu WHERE location_id = NEW.location_id AND specie
  INSERT INTO  node (node_id,mu_id,location_id, species_id, work_id, work_id2, size_id, plant_date, observ, 
  			the_geom, state_id,price_id, inventory)
  VALUES (NEW.node_id, mu_aux,NEW.location_id, NEW.species_id, NEW.work_id, NEW.work_id2, NEW.size_id,  NEW.plant_date, NEW.observ,
-  		NEW.the_geom,NEW.state_id,NEW.price_id,  NEW.inventory);
+  		NEW.the_geom,NEW.state,NEW.price_id,  NEW.inventory);
  
 --insert data into review_node table for the traceability of data change
  INSERT INTO  review_node (node_id, location_id, species_id, size_id, plant_date, observ, the_geom, state_id,cur_user)
- VALUES (NEW.node_id, NEW.location_id, NEW.species_id, NEW.size_id, NEW.plant_date, concat('Arbre nou.',NEW.observ), NEW.the_geom,NEW.state_id, current_user);
+ VALUES (NEW.node_id, NEW.location_id, NEW.species_id, NEW.size_id, NEW.plant_date, concat('Arbre nou.',NEW.observ), 
+ 	NEW.the_geom,NEW.state, current_user);
 
 
 RETURN NEW;
@@ -69,11 +71,11 @@ RETURN NEW;
 	SELECT * INTO rec_node FROM node WHERE node_id=NEW.node_id;
 --Update node table.
  	UPDATE node SET location_id=NEW.location_id, species_id=NEW.species_id,size_id=NEW.size_id, 
- 	plant_date=NEW.plant_date, observ=NEW.observ, the_geom=NEW.the_geom, state_id=NEW.state_id, mu_id=mu_aux, work_id2=NEW.work_id2,
+ 	plant_date=NEW.plant_date, observ=NEW.observ, the_geom=NEW.the_geom, state_id=NEW.state, mu_id=mu_aux, work_id2=NEW.work_id2,
 	inventory= NEW.inventory
  	WHERE node_id=NEW.node_id;
 --Automatic update of state of planified nodes.
- 	IF OLD.plant_date is null AND NEW.plant_date is not null AND OLD.state_id=2 THEN
+ 	IF OLD.plant_date is null AND NEW.plant_date is not null AND OLD.state=2 THEN
  		UPDATE node SET state_id=1 WHERE node_id=NEW.node_id; 
  	END IF;
 
@@ -86,7 +88,7 @@ RETURN NEW;
  		CASE WHEN rec_node.size_id::text!=NEW.size_id::text THEN OLD.size_id ELSE NULL END,
  		CASE WHEN rec_node.plant_date::text!=NEW.plant_date::text THEN OLD.plant_date ELSE NULL END,
  		CASE WHEN rec_node.observ::text!=NEW.observ::text THEN OLD.observ ELSE NULL END,
- 		CASE WHEN rec_node.state_id::text!=NEW.state_id::text THEN OLD.state_id ELSE NULL END
+ 		CASE WHEN rec_node.state_id::text!=NEW.state::text THEN OLD.state ELSE NULL END
  		);
 
 RETURN NEW;
@@ -105,8 +107,6 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
-
-
 
 
 

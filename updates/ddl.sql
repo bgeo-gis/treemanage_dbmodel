@@ -170,3 +170,21 @@ id varchar(50) NOT NULL PRIMARY KEY,
 "name" varchar(150),
 "context" varchar(50)
 );
+
+CREATE TABLE arbrat_viari_upgrade.exploitation
+(
+  expl_id integer NOT NULL,
+  name character varying(50) NOT NULL,
+  CONSTRAINT exploitation_pkey PRIMARY KEY (expl_id)
+);
+
+CREATE TABLE arbrat_viari_upgrade.selector_expl
+(
+  expl_id integer NOT NULL,
+  cur_user text NOT NULL,
+    CONSTRAINT selector_expl_pkey PRIMARY KEY (expl_id, cur_user),
+  CONSTRAINT selector_expl_id_fkey FOREIGN KEY (expl_id)
+      REFERENCES arbrat_viari_upgrade.exploitation (expl_id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT expl_id_cur_user_unique UNIQUE (expl_id, cur_user)
+);

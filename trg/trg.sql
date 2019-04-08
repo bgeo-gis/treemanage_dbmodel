@@ -25,3 +25,8 @@ CREATE TRIGGER trg_review_cat_mu INSTEAD OF UPDATE ON "SCHEMA_NAME".v_review_cat
 DROP TRIGGER IF EXISTS trg_visit_undone ON SCHEMA_NAME.om_visit_event;
 CREATE TRIGGER trg_visit_undone AFTER INSERT OR UPDATE OR DELETE ON SCHEMA_NAME.om_visit_event
 FOR EACH ROW EXECUTE PROCEDURE SCHEMA_NAME.trg_visit_undone('om_visit_event');
+
+
+DROP TRIGGER IF EXISTS trg_edit_ext_code_executed_visit ON SCHEMA_NAME.v_trim_executed;
+CREATE TRIGGER trg_edit_ext_code_executed_visit  INSTEAD OF UPDATE ON SCHEMA_NAME.v_trim_executed
+FOR EACH ROW EXECUTE PROCEDURE SCHEMA_NAME.trg_edit_ext_code_executed_visit();

@@ -268,6 +268,7 @@ CREATE OR REPLACE VIEW v_trim_executed AS
     node.node_id,
     node.mu_id,
     concat(cat_location.street_name, ' - ', cat_species.species) AS mu_name,
+    om_visit_event.ext_code,
     node.the_geom,
     om_visit_cat.id AS expl_id
    FROM selector_date, selector_expl,  om_visit

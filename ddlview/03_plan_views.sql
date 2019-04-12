@@ -22,7 +22,7 @@ CREATE VIEW v_plan_mu AS
     cat_mu.id AS mu_id,
     concat(cat_location.street_name, ' - ', cat_species.species) AS mu_name,
     cat_mu.work_id,
-    cat_work.name AS work,
+    cat_work.name AS work_name,
     sum(cat_price.price) AS price_sum,
     cat_price.campaign_id,
     cat_campaign.name AS campaign,

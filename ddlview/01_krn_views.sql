@@ -215,7 +215,9 @@ node.the_geom
     node.node_id,
     node.mu_id,
     concat(cat_location.street_name, ' - ', cat_species.species) AS mu_name,
-    node.the_geom
+    node.the_geom,
+    om_visit_cat.id AS expl_id,
+    om_visit_event.value AS from_date
    FROM selector_date, om_visit
      LEFT JOIN om_visit_event ON om_visit.id = om_visit_event.visit_id
      LEFT JOIN om_visit_x_node ON om_visit.id = om_visit_x_node.visit_id
@@ -224,8 +226,8 @@ node.the_geom
        LEFT JOIN cat_mu ON node.mu_id = cat_mu.id
   LEFT JOIN cat_species ON cat_mu.species_id = cat_species.id
   LEFT JOIN cat_location ON cat_mu.location_id = cat_location.id
-  WHERE (om_visit_event.value IS NOT NULL AND om_visit_event.value!='2018' and om_visit_event.value::date::text >= selector_date.from_date::text AND om_visit_event.value::date::text <= selector_date.to_date::text or
-   om_visit_event.value IS NULL AND om_visit_event.tstamp::timestamp::date >= selector_date.from_date AND om_visit_event.tstamp::timestamp::date <= selector_date.to_date)
+  WHERE (om_visit_event.value IS NOT NULL  and om_visit_event.value::date::text >= selector_date.from_date::text 
+    AND om_visit_event.value::date::text <= selector_date.to_date::text )
   AND parameter_id ilike 'tala%' AND cur_user=current_user ORDER BY om_visit_event.id, node.mu_id;
 
 
@@ -242,7 +244,9 @@ CREATE OR REPLACE VIEW v_irrigation_executed AS
     node.node_id,
     node.mu_id,
     concat(cat_location.street_name, ' - ', cat_species.species) AS mu_name,
-    node.the_geom
+    node.the_geom,
+    om_visit_cat.id AS expl_id,
+    om_visit_event.value AS from_date
    FROM selector_date, om_visit
      LEFT JOIN om_visit_event ON om_visit.id = om_visit_event.visit_id
      LEFT JOIN om_visit_x_node ON om_visit.id = om_visit_x_node.visit_id
@@ -251,8 +255,8 @@ CREATE OR REPLACE VIEW v_irrigation_executed AS
        LEFT JOIN cat_mu ON node.mu_id = cat_mu.id
   LEFT JOIN cat_species ON cat_mu.species_id = cat_species.id
   LEFT JOIN cat_location ON cat_mu.location_id = cat_location.id
-  WHERE (om_visit_event.value IS NOT NULL AND om_visit_event.value!='2018' and om_visit_event.value::date::text >= selector_date.from_date::text AND om_visit_event.value::date::text <= selector_date.to_date::text or
-   om_visit_event.value IS NULL AND om_visit_event.tstamp::timestamp::date >= selector_date.from_date AND om_visit_event.tstamp::timestamp::date <= selector_date.to_date)
+  WHERE (om_visit_event.value IS NOT NULL  and om_visit_event.value::date::text >= selector_date.from_date::text
+   AND om_visit_event.value::date::text <= selector_date.to_date::text)
   AND parameter_id ilike 'reg%' AND cur_user=current_user ORDER BY om_visit_event.id, node.mu_id;
 
 
@@ -270,7 +274,8 @@ CREATE OR REPLACE VIEW v_trim_executed AS
     concat(cat_location.street_name, ' - ', cat_species.species) AS mu_name,
     om_visit_event.ext_code,
     node.the_geom,
-    om_visit_cat.id AS expl_id
+    om_visit_cat.id AS expl_id,
+    om_visit_event.value AS from_date
    FROM selector_date, selector_expl,  om_visit
      LEFT JOIN om_visit_event ON om_visit.id = om_visit_event.visit_id
      LEFT JOIN om_visit_x_node ON om_visit.id = om_visit_x_node.visit_id
@@ -279,7 +284,9 @@ CREATE OR REPLACE VIEW v_trim_executed AS
      LEFT JOIN cat_mu ON node.mu_id = cat_mu.id
      LEFT JOIN cat_species ON cat_mu.species_id = cat_species.id
      LEFT JOIN cat_location ON cat_mu.location_id = cat_location.id
-  WHERE om_visit_event.value::date::text > selector_date.from_date::text AND om_visit_event.value::date::text < selector_date.to_date::text AND selector_expl.expl_id = om_visit_cat.id AND om_visit_event.parameter_id::text ~~* 'poda%'::text AND selector_expl.cur_user = "current_user"()::text AND selector_date.cur_user = "current_user"()::text
+  WHERE om_visit_event.value::date::text > selector_date.from_date::text AND om_visit_event.value::date::text < selector_date.to_date::text 
+  AND selector_expl.expl_id = om_visit_cat.id AND om_visit_event.parameter_id::text ~~* 'poda%'::text AND selector_expl.cur_user = "current_user"()::text 
+  AND selector_date.cur_user = "current_user"()::text
   ORDER BY om_visit_event.id, node.mu_id;
 
 
@@ -294,7 +301,9 @@ CREATE OR REPLACE VIEW v_events_executed AS
     node.node_id,
     node.mu_id,
     concat(cat_location.street_name, ' - ', cat_species.species) AS mu_name,
-    node.the_geom
+    node.the_geom,
+    om_visit_cat.id AS expl_id,
+    om_visit_event.value AS from_date
    FROM selector_date, om_visit
      LEFT JOIN om_visit_event ON om_visit.id = om_visit_event.visit_id
      LEFT JOIN om_visit_x_node ON om_visit.id = om_visit_x_node.visit_id
@@ -303,8 +312,8 @@ CREATE OR REPLACE VIEW v_events_executed AS
        LEFT JOIN cat_mu ON node.mu_id = cat_mu.id
   LEFT JOIN cat_species ON cat_mu.species_id = cat_species.id
   LEFT JOIN cat_location ON cat_mu.location_id = cat_location.id
-  WHERE (om_visit_event.value IS NOT NULL AND om_visit_event.value!='2018' and om_visit_event.value::date::text >= selector_date.from_date::text AND om_visit_event.value::date::text <= selector_date.to_date::text or
-   om_visit_event.value IS NULL AND om_visit_event.tstamp::timestamp::date >= selector_date.from_date AND om_visit_event.tstamp::timestamp::date <= selector_date.to_date)
+  WHERE (om_visit_event.value IS NOT NULL  and om_visit_event.value::date::text >= selector_date.from_date::text AND 
+    om_visit_event.value::date::text <= selector_date.to_date::text )
    AND cur_user=current_user ORDER BY om_visit_event.id, node.mu_id;
 
 

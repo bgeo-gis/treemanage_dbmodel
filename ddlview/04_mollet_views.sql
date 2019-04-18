@@ -49,7 +49,8 @@ CREATE OR REPLACE VIEW v_podas_2018_2019 AS
      LEFT JOIN cat_location ON cat_mu.location_id = cat_location.id
      LEFT JOIN temp_node_x_mu ON temp_node_x_mu.mu_id = temp_podas_2019.mu_id
   WHERE temp_podas_2019.parameter_id::text <> 'arrencada'::text AND temp_podas_2019.parameter_id::text <> 'reg'::text
-  GROUP BY temp_podas_2019.mu_id, (concat(cat_location.street_name, ' - ', cat_species.species)), temp_podas_2019.parameter_id, temp_node_x_mu.num_arboles_x_poblacion, temp_podas_2019.value, temp_podas_2019.tstamp, temp_podas_2019.builder
+  GROUP BY temp_podas_2019.mu_id, (concat(cat_location.street_name, ' - ', cat_species.species)), 
+  temp_podas_2019.parameter_id, temp_node_x_mu.num_arboles_x_poblacion, temp_podas_2019.value, temp_podas_2019.tstamp, temp_podas_2019.builder
   ORDER BY temp_podas_2019.mu_id;
 
 
@@ -114,7 +115,7 @@ CREATE OR REPLACE VIEW v_web_review AS
  SELECT review_node.id AS nid,
     'TREE_REVIEW'::text AS custom_type
    FROM review_node;
--- DROP VIEW v_review_node;
+-- DROP VIEW v_web_review_node;
 
 CREATE OR REPLACE VIEW v_web_review_node AS 
  SELECT review_node.id,
@@ -133,3 +134,20 @@ CREATE OR REPLACE VIEW v_web_review_node AS
      LEFT JOIN cat_size ON review_node.size_id = cat_size.id
      LEFT JOIN cat_species ON review_node.species_id = cat_species.id
      LEFT JOIN cat_location ON review_node.location_id = cat_location.id;
+
+
+--view with the last visit made on every node
+CREATE MATERIALIZED VIEW .v_last_work AS 
+ SELECT DISTINCT ON (node.node_id) node.node_id,
+    node.the_geom,
+    a.parameter_id,
+    a.value
+   FROM .node
+     JOIN LATERAL ( SELECT DISTINCT ON (om_visit_x_node_1.node_id) om_visit_x_node_1.node_id,
+            om_visit_event_1.parameter_id,
+            om_visit_event_1.value
+           FROM .om_visit_event om_visit_event_1
+             LEFT JOIN .om_visit_x_node om_visit_x_node_1 ON om_visit_x_node_1.visit_id = om_visit_event_1.visit_id
+          WHERE om_visit_x_node_1.node_id::text = node.node_id::text
+          ORDER BY om_visit_x_node_1.node_id, om_visit_event_1.tstamp DESC) a ON true
+WITH DATA;

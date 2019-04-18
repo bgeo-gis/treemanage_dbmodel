@@ -84,16 +84,14 @@ CREATE VIEW v_ui_om_visitman_x_node AS
 DROP VIEW IF EXISTS v_om_visit_work_x_node_dates;
 
 CREATE OR REPLACE VIEW v_om_visit_work_x_node_dates AS 
- SELECT DISTINCT row_number() OVER (ORDER BY node.mu_id) AS row_number,
+ SELECT DISTINCT ON (om_visit_work_x_node.event_id) row_number() OVER (ORDER BY node.mu_id) AS row_number,
+ om_visit_work_x_node.event_id,
     node.node_id,
     node.mu_id AS poblacion_id,
     concat(cat_location.street_name, ' - ', cat_species.species) AS poblacion_name,
     cat_size.name AS tamano,
     om_visit_event.parameter_id,
-        CASE
-            WHEN om_visit_event.value IS NOT NULL THEN om_visit_event.value
-            ELSE om_visit_event.tstamp::date::text
-        END AS poda_data,
+    om_visit_work_x_node.work_date,
     cat_builder.name AS builder,
     planning.plan_code,
     cat_campaign.id AS campana,
@@ -112,8 +110,8 @@ CREATE OR REPLACE VIEW v_om_visit_work_x_node_dates AS
      LEFT JOIN cat_size ON cat_size.id = node.size_id
      LEFT JOIN cat_campaign ON om_visit_event.value::date > cat_campaign.start_date AND om_visit_event.value::date < cat_campaign.end_date OR om_visit_event.tstamp::date > cat_campaign.start_date AND om_visit_event.tstamp::date < cat_campaign.end_date AND om_visit_event.value IS NULL
      LEFT JOIN planning ON node.mu_id = planning.mu_id AND cat_work.id = planning.work_id AND om_visit_event.value::date > planning.plan_month_start AND om_visit_event.value::date < planning.plan_month_end OR om_visit_event.tstamp::date > planning.plan_month_start AND om_visit_event.tstamp::date < planning.plan_month_end AND om_visit_event.value IS NULL
-  WHERE om_visit_event.value::date > selector_date.from_date AND om_visit_event.value::date < selector_date.to_date AND selector_date.cur_user = "current_user"()::text OR om_visit_event.tstamp::date > selector_date.from_date AND om_visit_event.tstamp::date < selector_date.to_date AND selector_date.cur_user = "current_user"()::text AND om_visit_event.value IS NULL;
-
+  WHERE om_visit_work_x_node.work_date::date > selector_date.from_date AND om_visit_work_x_node.work_date::date < selector_date.to_date AND selector_date.cur_user = "current_user"()::text 
+order by om_visit_work_x_node.event_id;
 
   
 CREATE OR REPLACE VIEW ve_visit_node_insp AS 
@@ -187,10 +185,10 @@ CREATE OR REPLACE VIEW ve_visit_node_singlevent AS
     om_visit_event.text,
     om_visit_event.index_val,
     om_visit_event.is_last
-   FROM arbrat_viari_upgrade.om_visit
-     JOIN arbrat_viari_upgrade.om_visit_event ON om_visit.id = om_visit_event.visit_id
-     JOIN arbrat_viari_upgrade.om_visit_x_node ON om_visit.id = om_visit_x_node.visit_id
-     JOIN arbrat_viari_upgrade.om_visit_class ON om_visit_class.id = om_visit.class_id
+   FROM upgrade.om_visit
+     JOIN upgrade.om_visit_event ON om_visit.id = om_visit_event.visit_id
+     JOIN upgrade.om_visit_x_node ON om_visit.id = om_visit_x_node.visit_id
+     JOIN upgrade.om_visit_class ON om_visit_class.id = om_visit.class_id
   WHERE om_visit_class.ismultievent = false;
   
   
@@ -252,3 +250,27 @@ CREATE OR REPLACE VIEW ve_visit_noinfra_typeb AS
             where om_visit_class.ismultievent = TRUE ORDER  BY 1,2'::text, ' VALUES (''comentari_typea'')'::text) ct(visit_id integer, param_1 text)) a ON a.visit_id = om_visit.id
   WHERE om_visit_class.ismultievent = true;
   
+
+
+  CREATE OR REPLACE VIEW v_om_visit_event AS 
+ SELECT DISTINCT ON (om_visit_event.id) row_number() OVER (ORDER BY om_visit_event.id) AS row_id,
+    om_visit_event.id AS event_id,
+    om_visit.id AS visit_id,
+    om_visit.is_done,
+    om_visit_cat.name AS builder,
+    om_visit_event.parameter_id,
+    om_visit_event.value,
+    om_visit_event.tstamp,
+    node.node_id,
+    node.mu_id,
+    concat(cat_location.street_name, ' - ', cat_species.species) AS mu_name,
+    node.the_geom
+   FROM om_visit_event
+     JOIN om_visit ON om_visit.id = om_visit_event.visit_id
+     LEFT JOIN om_visit_x_node ON om_visit.id = om_visit_x_node.visit_id
+     JOIN node ON node.node_id::text = om_visit_x_node.node_id::text
+     JOIN om_visit_cat ON om_visit_cat.id = om_visit.visitcat_id
+     LEFT JOIN cat_mu ON node.mu_id = cat_mu.id
+     LEFT JOIN cat_species ON cat_mu.species_id = cat_species.id
+     LEFT JOIN cat_location ON cat_mu.location_id = cat_location.id
+  ORDER BY om_visit_event.id, node.mu_id;

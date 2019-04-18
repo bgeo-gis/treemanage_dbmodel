@@ -21,6 +21,8 @@ ALTER TABLE node DROP CONSTRAINT IF EXISTS node_work_id_fkey;
 
 ALTER TABLE verify_node DROP CONSTRAINT IF EXISTS verify_node_verify_id_fkey;
 
+ALTER TABLE om_visit_work_x_node DROP CONSTRAINT om_visit_work_x_node_event_id_fkey;
+
 
 --ADD
 ALTER TABLE cat_mu
@@ -70,3 +72,6 @@ ALTER TABLE node
 
 ALTER TABLE verify_node
     ADD CONSTRAINT verify_node_verify_id_fkey FOREIGN KEY (verify_id) REFERENCES cat_verify(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE om_visit_work_x_node ADD CONSTRAINT om_visit_work_x_node_event_id_fkey FOREIGN KEY (event_id)
+      REFERENCES om_visit_event (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE;

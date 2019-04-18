@@ -204,4 +204,19 @@ tstamp timestamp DEFAULT now(),
 user_name text DEFAULT "current_user"(),
 observ text
  );
- );
+
+
+CREATE TABLE exploitation_x_user
+(
+  id serial NOT NULL,
+  expl_id integer,
+  username character varying(50),
+  CONSTRAINT exploitation_x_user_pkey PRIMARY KEY (id),
+  CONSTRAINT exploitation_x_user_expl_id_fkey FOREIGN KEY (expl_id)
+      REFERENCES exploitation (expl_id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE RESTRICT,
+  CONSTRAINT exploitation_x_user_username_fkey FOREIGN KEY (username)
+      REFERENCES cat_users (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE RESTRICT,
+  CONSTRAINT exploitation_x_user_expl_username_unique UNIQUE (expl_id, username)
+);

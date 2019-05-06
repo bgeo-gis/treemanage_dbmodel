@@ -39,28 +39,42 @@ BEGIN
 	IF v_rolepermissions THEN 
 	
 		-- Grant generic permissions
-		v_query_text:= 'GRANT ALL ON DATABASE '||v_dbnname||' TO "role_basic";';
+		v_query_text:= 'GRANT ALL ON DATABASE '||v_dbnname||' TO "role_basic_mollet";';
 		EXECUTE v_query_text;	
 	
-		v_query_text:= 'GRANT ALL ON SCHEMA '||v_schemaname||' TO "role_basic";';
+		v_query_text:= 'GRANT ALL ON SCHEMA '||v_schemaname||' TO "role_basic_mollet";';
 		EXECUTE v_query_text;
 	
-		v_query_text:= 'GRANT SELECT ON ALL TABLES IN SCHEMA '||v_schemaname||' TO "role_basic";';
+		v_query_text:= 'GRANT SELECT ON ALL TABLES IN SCHEMA '||v_schemaname||' TO "role_basic_mollet";';
 		EXECUTE v_query_text;
 	
-		v_query_text:= 'GRANT ALL ON ALL SEQUENCES IN SCHEMA  '||v_schemaname||' TO "role_basic";'; 
+		v_query_text:= 'GRANT ALL ON ALL SEQUENCES IN SCHEMA  '||v_schemaname||' TO "role_basic_mollet";'; 
 		EXECUTE v_query_text;
 		
 		-- Grant all in order to ensure the functionality. We need to review the catalog function before downgrade ALL to SELECT
-		v_query_text:= 'GRANT ALL ON ALL FUNCTIONS IN SCHEMA '||v_schemaname||' TO role_basic'; 
+		v_query_text:= 'GRANT ALL ON ALL FUNCTIONS IN SCHEMA '||v_schemaname||' TO role_basic_mollet'; 
 		EXECUTE v_query_text;
 
 		-- Grant specificic permissions for tables
 		FOR v_tablerecord IN SELECT * FROM audit_cat_table WHERE sys_role_id IS NOT NULL AND id IN 
 			(SELECT table_name from information_schema.tables where table_schema ='SCHEMA_NAME' )
 		LOOP
-			v_query_text:= 'GRANT ALL ON TABLE '||v_tablerecord.id||' TO '||v_tablerecord.sys_role_id||';';
-			EXECUTE v_query_text;
+			IF v_tablerecord.sys_role_id='role_edit' THEN
+				v_query_text:= 'GRANT ALL ON TABLE '||v_tablerecord.id||' TO role_edit_moix;';
+				EXECUTE v_query_text;
+				v_query_text:= 'GRANT ALL ON TABLE '||v_tablerecord.id||' TO role_edit_mollet;';
+				EXECUTE v_query_text;
+				v_query_text:= 'GRANT ALL ON TABLE '||v_tablerecord.id||' TO role_edit_bpj;';
+				EXECUTE v_query_text;
+				v_query_text:= 'GRANT ALL ON TABLE '||v_tablerecord.id||' TO role_edit_adalia;';
+				EXECUTE v_query_text;
+			ELSIF v_tablerecord.sys_role_id='role_basic'  THEN
+			v_query_text:= 'GRANT ALL ON TABLE '||v_tablerecord.id||' TO role_basic_mollet;';
+				EXECUTE v_query_text;
+			ELSIF v_tablerecord.sys_role_id='role_admin'  THEN
+				v_query_text:= 'GRANT ALL ON TABLE '||v_tablerecord.id||' TO role_admin_mollet;';
+				EXECUTE v_query_text;
+			END IF;
 		END LOOP;
 	
 		-- Grant specificic permissions for functions
@@ -87,7 +101,7 @@ BEGIN
 		v_query_text:= 'GRANT ALL ON SCHEMA '||v_schemaname||' TO '||v_apipublishuser;
 		EXECUTE v_query_text;
 	
-		v_query_text:= 'GRANT SELECT ON ALL TABLES IN SCHEMA '||v_schemaname||' TO '||v_apipublishuser;
+		v_query_text:= 'GRANT ALL ON ALL TABLES IN SCHEMA '||v_schemaname||' TO '||v_apipublishuser;
 		EXECUTE v_query_text;	
 	
 	END IF;
@@ -99,5 +113,3 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
-ALTER FUNCTION SCHEMA_NAME.gw_fct_admin_role_permissions()
-  OWNER TO postgres;

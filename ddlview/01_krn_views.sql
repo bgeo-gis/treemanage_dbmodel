@@ -76,7 +76,7 @@ DROP VIEW IF EXISTS v_review_cat_mu;
     cat_mu.location_id,
     cat_mu.species_id,
     cat_mu.work_id
-   FROM arbrat_viari.cat_mu
+   FROM cat_mu
   WHERE cat_mu.work_id IS NULL;
 
 
@@ -201,6 +201,26 @@ node.the_geom
    JOIN cat_work ON cat_work.id=planning_unit.work_id
   WHERE planning_unit.campaign_id=selector_campaign.campaign_id AND cur_user=current_user AND planning_unit.work_id IN (1,2,3,4,5,6,7);
 
+DROP VIEW IF EXISTS v_remove_trunk_planned;
+CREATE OR REPLACE VIEW v_remove_trunk_planned AS
+SELECT planning_unit.id,
+    planning_unit.campaign_id,
+    'PODA UNITARIA'::text AS type,
+    planning_unit.node_id::integer AS feature_id,
+    concat(cat_location.street_name, ' - ', cat_species.species) AS mu_name,
+    planning_unit.plan_date,
+    planning_unit.plan_execute_date,
+    cat_work.name AS work,
+    planning_unit.price,
+    node.the_geom
+   FROM selector_campaign,
+    planning_unit
+     LEFT JOIN node ON planning_unit.node_id::text = node.node_id::text
+     LEFT JOIN cat_mu ON node.mu_id = cat_mu.id
+     LEFT JOIN cat_species ON cat_mu.species_id = cat_species.id
+     LEFT JOIN cat_location ON cat_mu.location_id = cat_location.id
+     JOIN cat_work ON cat_work.id = planning_unit.work_id
+  WHERE planning_unit.campaign_id = selector_campaign.campaign_id AND selector_campaign.cur_user = "current_user"()::text AND (planning_unit.work_id = 10);
 
   --ejecutadas
 

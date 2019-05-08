@@ -23,6 +23,8 @@ CREATE VIEW v_om_visit_work_x_node AS
      LEFT JOIN cat_work ON ((om_visit_work_x_node.work_id = cat_work.id)))
      LEFT JOIN cat_builder ON ((om_visit_work_x_node.builder_id = cat_builder.id)));
 
+-- View: arbrat_viari.v_ui_om_visit_x_node
+
 
 DROP VIEW IF EXISTS v_ui_om_visit_x_node;
 CREATE VIEW v_ui_om_visit_x_node AS
@@ -30,6 +32,7 @@ CREATE VIEW v_ui_om_visit_x_node AS
     om_visit.id AS visit_id,
     om_visit.ext_code AS code,
     om_visit.visitcat_id,
+    om_visit_cat.name AS visitcat_name,
     om_visit_parameter.descript,
     om_visit.startdate AS visit_start,
     om_visit.enddate AS visit_end,
@@ -55,6 +58,7 @@ CREATE VIEW v_ui_om_visit_x_node AS
             ELSE true
         END AS document
    FROM (((((om_visit
+     JOIN arbrat_viari.om_visit_cat ON om_visit.visitcat_id = om_visit_cat.id
      JOIN om_visit_event ON ((om_visit.id = om_visit_event.visit_id)))
      JOIN om_visit_x_node ON ((om_visit_x_node.visit_id = om_visit.id)))
      LEFT JOIN om_visit_parameter ON (((om_visit_parameter.id)::text = (om_visit_event.parameter_id)::text)))

@@ -71,7 +71,7 @@ CREATE VIEW v_ui_planning_unit AS
     planning_unit.node_id,
     cat_location.street_name_concat,
     cat_species.species,
-    planning_unit.plan_date,
+    planning_unit.plan_date::date,
     planning_unit.plan_execute_date AS execution_date,
     planning_unit.work_id,
     cat_work.name as work,

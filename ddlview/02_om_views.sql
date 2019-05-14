@@ -4,6 +4,7 @@ SET search_path='SCHEMA_NAME',public;
 DROP VIEW IF EXISTS v_om_visit_work_x_node;
 CREATE VIEW v_om_visit_work_x_node AS
  SELECT om_visit_work_x_node.id,
+    om_visit_work_x_node.event_id,
     om_visit_work_x_node.node_id,
     cat_species.species,
     cat_location.street_name_concat,
@@ -14,16 +15,18 @@ CREATE VIEW v_om_visit_work_x_node AS
     om_visit_work_x_node.price,
     om_visit_work_x_node.units,
     om_visit_work_x_node.work_cost,
+    om_visit_event.ext_code,
     node.the_geom
-   FROM ((((((om_visit_work_x_node
-     JOIN node ON (((node.node_id)::text = (om_visit_work_x_node.node_id)::text)))
-     LEFT JOIN cat_species ON ((node.species_id = cat_species.id)))
-     LEFT JOIN cat_location ON ((node.location_id = cat_location.id)))
-     LEFT JOIN cat_size ON ((om_visit_work_x_node.size_id = cat_size.id)))
-     LEFT JOIN cat_work ON ((om_visit_work_x_node.work_id = cat_work.id)))
-     LEFT JOIN cat_builder ON ((om_visit_work_x_node.builder_id = cat_builder.id)));
+   FROM om_visit_work_x_node
+     JOIN node ON node.node_id::text = om_visit_work_x_node.node_id::text
+     LEFT JOIN om_visit_event ON om_visit_work_x_node.event_id = om_visit_event.id
+     LEFT JOIN cat_species ON node.species_id = cat_species.id
+     LEFT JOIN cat_location ON node.location_id = cat_location.id
+     LEFT JOIN cat_size ON om_visit_work_x_node.size_id = cat_size.id
+     LEFT JOIN cat_work ON om_visit_work_x_node.work_id = cat_work.id
+     LEFT JOIN cat_builder ON om_visit_work_x_node.builder_id = cat_builder.id;
 
--- View: arbrat_viari.v_ui_om_visit_x_node
+-- View: v_ui_om_visit_x_node
 
 
 DROP VIEW IF EXISTS v_ui_om_visit_x_node;
@@ -58,7 +61,7 @@ CREATE VIEW v_ui_om_visit_x_node AS
             ELSE true
         END AS document
    FROM (((((om_visit
-     JOIN arbrat_viari.om_visit_cat ON om_visit.visitcat_id = om_visit_cat.id
+     JOIN om_visit_cat ON om_visit.visitcat_id = om_visit_cat.id
      JOIN om_visit_event ON ((om_visit.id = om_visit_event.visit_id)))
      JOIN om_visit_x_node ON ((om_visit_x_node.visit_id = om_visit.id)))
      LEFT JOIN om_visit_parameter ON (((om_visit_parameter.id)::text = (om_visit_event.parameter_id)::text)))

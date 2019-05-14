@@ -15,7 +15,7 @@ BEGIN
 
 IF TG_OP = 'UPDATE' THEN
 
-	UPDATE om_visit_event SET ext_code=NEW.ext_code WHERE om_visit_event.id=NEW.id;
+	UPDATE om_visit_event SET ext_code=NEW.ext_code WHERE om_visit_event.id=NEW.event_id;
 
 RETURN NEW;
 

@@ -79,7 +79,39 @@ DROP VIEW IF EXISTS v_review_cat_mu;
    FROM cat_mu
   WHERE cat_mu.work_id IS NULL;
 
-
+DROP VIEW  IF EXISTS v_irrigation_x_maintainer;
+CREATE OR REPLACE VIEW v_irrigation_x_maintainer AS 
+ SELECT DISTINCT ON (node.node_id) node.node_id,
+    node.mu_id,
+    concat(cat_location.street_name, ' - ', cat_species.species) AS mu_name,
+    cat_location.situation,
+    cat_builder.name AS maintainer,
+    node.plant_date,
+    node.observ,
+    om_visit_event.parameter_id,
+    om_visit_event.value,
+    now()::date - om_visit_event.value::date AS last_irrigation,
+    node.maintainer_id AS expl_id,
+    node.the_geom
+   FROM selector_date,
+    selector_expl,
+    om_visit_event
+     LEFT JOIN ( SELECT om_visit_x_node.node_id,
+            om_visit_event_1.parameter_id,
+            max(om_visit_event_1.value::date) AS max_tstamp
+           FROM om_visit_event om_visit_event_1
+             JOIN om_visit_x_node ON om_visit_event_1.visit_id = om_visit_x_node.visit_id
+          WHERE om_visit_event_1.value::date > ('now'::text::date - '180 days'::interval) AND om_visit_event_1.parameter_id::text = 'reg'::text
+          GROUP BY om_visit_x_node.node_id, om_visit_event_1.parameter_id
+          ORDER BY om_visit_x_node.node_id, max(om_visit_event_1.value::date)) a ON a.max_tstamp = om_visit_event.value::date
+     RIGHT JOIN node ON node.node_id::text = a.node_id::text
+     LEFT JOIN cat_species ON node.species_id = cat_species.id
+     LEFT JOIN cat_location ON node.location_id = cat_location.id
+     LEFT JOIN cat_builder ON cat_builder.id = node.maintainer_id
+  WHERE (om_visit_event.parameter_id IS NULL OR om_visit_event.parameter_id::text = 'reg'::text) 
+  AND node.state_id = 1 AND node.maintainer_id IS NOT NULL AND  selector_expl.cur_user = "current_user"()::text 
+  AND selector_expl.expl_id = node.maintainer_id
+  ORDER BY node.node_id;
 
 CREATE VIEW v_irrigation_planned AS 
 SELECT planning.id,

@@ -39,9 +39,9 @@ SELECT id INTO mu_aux FROM cat_mu WHERE location_id = NEW.location_id AND specie
 
 --insert data into node table
  INSERT INTO  node (node_id,mu_id,location_id, species_id, work_id, work_id2, size_id, plant_date, observ, 
- 			the_geom, state_id,price_id, inventory)
+ 			the_geom, state_id,price_id, inventory,maintainer_id)
  VALUES (NEW.node_id, mu_aux,NEW.location_id, NEW.species_id, NEW.work_id, NEW.work_id2, NEW.size_id,  NEW.plant_date, NEW.observ,
-  		NEW.the_geom,NEW.state,NEW.price_id,  NEW.inventory);
+  		NEW.the_geom,NEW.state,NEW.price_id,  NEW.inventory, NEW.maintainer_id);
  
 --insert data into review_node table for the traceability of data change
  INSERT INTO  review_node (node_id, location_id, species_id, size_id, plant_date, observ, the_geom, state_id,cur_user)
@@ -72,7 +72,7 @@ RETURN NEW;
 --Update node table.
  	UPDATE node SET location_id=NEW.location_id, species_id=NEW.species_id,size_id=NEW.size_id, 
  	plant_date=NEW.plant_date, observ=NEW.observ, the_geom=NEW.the_geom, state_id=NEW.state, mu_id=mu_aux, work_id2=NEW.work_id2,
-	inventory= NEW.inventory
+	inventory= NEW.inventory, maintainer_id=NEW.maintainer_id
  	WHERE node_id=NEW.node_id;
 --Automatic update of state of planified nodes.
  	IF OLD.plant_date is null AND NEW.plant_date is not null AND OLD.state=2 THEN

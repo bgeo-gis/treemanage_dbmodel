@@ -103,6 +103,7 @@ CREATE OR REPLACE VIEW v_om_visit_work_x_node_dates AS
     planning.plan_code,
     cat_campaign.id AS campana,
     om_visit_work_x_node.price AS precio,
+    om_visit_event.ext_code,
     node.the_geom
    FROM selector_date,
     node

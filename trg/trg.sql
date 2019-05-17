@@ -14,10 +14,10 @@ FOR EACH ROW EXECUTE PROCEDURE SCHEMA_NAME.trg_edit_price('');
 DROP TRIGGER IF EXISTS trg_edit_verify_node ON SCHEMA_NAME.v_edit_verify_node;
 CREATE TRIGGER trg_edit_verify_node INSTEAD OF UPDATE ON SCHEMA_NAME.v_edit_verify_node
 FOR EACH ROW EXECUTE PROCEDURE SCHEMA_NAME.trg_edit_verify_node();
-
+/*
 DROP TRIGGER IF EXISTS trg_planned_visit ON SCHEMA_NAME.om_visit_event;
 CREATE TRIGGER trg_planned_visit AFTER INSERT OR UPDATE OR DELETE ON SCHEMA_NAME.om_visit_event
-FOR EACH ROW EXECUTE PROCEDURE SCHEMA_NAME.trg_planned_visit('om_visit_event');
+FOR EACH ROW EXECUTE PROCEDURE SCHEMA_NAME.trg_planned_visit('om_visit_event');*/
 
 DROP TRIGGER IF EXISTS trg_review_cat_mu ON "SCHEMA_NAME".v_review_cat_mu;
 CREATE TRIGGER trg_review_cat_mu INSTEAD OF UPDATE ON "SCHEMA_NAME".v_review_cat_mu FOR EACH ROW EXECUTE PROCEDURE "SCHEMA_NAME".trg_review_cat_mu('');

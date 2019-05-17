@@ -113,6 +113,7 @@ CREATE OR REPLACE VIEW v_irrigation_x_maintainer AS
   AND selector_expl.expl_id = node.maintainer_id
   ORDER BY node.node_id;
 
+drop view if EXIS v_irrigation_planned;
 CREATE VIEW v_irrigation_planned AS 
 SELECT planning.id,
 planning.campaign_id,
@@ -130,7 +131,7 @@ st_collect(node.the_geom) AS the_geom
   LEFT JOIN cat_species ON cat_mu.species_id = cat_species.id
   LEFT JOIN cat_location ON cat_mu.location_id = cat_location.id
   JOIN cat_work ON cat_work.id=planning.work_id
-  WHERE planning.campaign_id=selector_campaign.campaign_id AND cur_user=current_user AND planning.work_id = 11
+  WHERE plan_execute_date is null and planning.campaign_id=selector_campaign.campaign_id AND cur_user=current_user AND planning.work_id = 11
   GROUP BY planning.id,cat_work.name,cat_location.street_name, cat_species.species
 UNION
 SELECT 
@@ -150,9 +151,10 @@ node.the_geom
   LEFT JOIN cat_species ON cat_mu.species_id = cat_species.id
   LEFT JOIN cat_location ON cat_mu.location_id = cat_location.id
    JOIN cat_work ON cat_work.id=planning_unit.work_id
-  WHERE planning_unit.campaign_id=selector_campaign.campaign_id AND cur_user=current_user AND planning_unit.work_id = 11;
+  WHERE plan_execute_date is null and planning_unit.campaign_id=selector_campaign.campaign_id AND cur_user=current_user AND planning_unit.work_id = 11;
 
 
+DROP VIEW IF EXISTS v_cut_planned;
 CREATE VIEW v_cut_planned AS 
 SELECT 
 planning_unit.id, 
@@ -170,9 +172,10 @@ node.the_geom
   LEFT JOIN cat_mu ON node.mu_id = cat_mu.id
   LEFT JOIN cat_species ON cat_mu.species_id = cat_species.id
   LEFT JOIN cat_location ON cat_mu.location_id = cat_location.id
-  WHERE planning_unit.campaign_id=selector_campaign.campaign_id AND cur_user=current_user AND planning_unit.work_id=9;
+  WHERE plan_execute_date is null and planning_unit.campaign_id=selector_campaign.campaign_id AND cur_user=current_user AND planning_unit.work_id=9;
 
 
+DROP VIEW IF EXISTS v_plant_planned;
 create VIEW v_plant_planned AS 
 SELECT 
 planning_unit.id, 
@@ -190,7 +193,7 @@ node.the_geom
   LEFT JOIN cat_mu ON node.mu_id = cat_mu.id
   LEFT JOIN cat_species ON cat_mu.species_id = cat_species.id
   LEFT JOIN cat_location ON cat_mu.location_id = cat_location.id
-  WHERE planning_unit.campaign_id=selector_campaign.campaign_id AND cur_user=current_user AND planning_unit.work_id=12;
+  WHERE plan_execute_date is null and planning_unit.campaign_id=selector_campaign.campaign_id AND cur_user=current_user AND planning_unit.work_id=12;
 
 
 DROP VIEW IF EXISTS v_trim_planned;
@@ -211,7 +214,7 @@ st_collect(node.the_geom) AS the_geom
   LEFT JOIN cat_species ON cat_mu.species_id = cat_species.id
   LEFT JOIN cat_location ON cat_mu.location_id = cat_location.id
   JOIN cat_work ON cat_work.id=planning.work_id
-  WHERE planning.campaign_id=selector_campaign.campaign_id AND cur_user=current_user AND planning.work_id IN (1,2,3,4,5,6,7)
+  WHERE plan_execute_date is null and planning.campaign_id=selector_campaign.campaign_id AND cur_user=current_user AND planning.work_id IN (1,2,3,4,5,6,7)
   GROUP BY planning.id,cat_work.name,cat_location.street_name, cat_species.species
 UNION
 SELECT 
@@ -231,7 +234,7 @@ node.the_geom
   LEFT JOIN cat_species ON cat_mu.species_id = cat_species.id
   LEFT JOIN cat_location ON cat_mu.location_id = cat_location.id
    JOIN cat_work ON cat_work.id=planning_unit.work_id
-  WHERE planning_unit.campaign_id=selector_campaign.campaign_id AND cur_user=current_user AND planning_unit.work_id IN (1,2,3,4,5,6,7);
+  WHERE plan_execute_date is null and planning_unit.campaign_id=selector_campaign.campaign_id AND cur_user=current_user AND planning_unit.work_id IN (1,2,3,4,5,6,7);
 
 DROP VIEW IF EXISTS v_remove_trunk_planned;
 CREATE OR REPLACE VIEW v_remove_trunk_planned AS
@@ -252,35 +255,41 @@ SELECT planning_unit.id,
      LEFT JOIN cat_species ON cat_mu.species_id = cat_species.id
      LEFT JOIN cat_location ON cat_mu.location_id = cat_location.id
      JOIN cat_work ON cat_work.id = planning_unit.work_id
-  WHERE planning_unit.campaign_id = selector_campaign.campaign_id AND selector_campaign.cur_user = "current_user"()::text AND (planning_unit.work_id = 10);
+  WHERE plan_execute_date is null and planning_unit.campaign_id = selector_campaign.campaign_id AND selector_campaign.cur_user = "current_user"()::text AND (planning_unit.work_id = 10);
 
   --ejecutadas
 
- CREATE OR REPLACE VIEW v_cut_executed AS 
+ 
+CREATE OR REPLACE VIEW v_cut_executed AS 
  SELECT row_number() OVER (ORDER BY om_visit_event.id) AS row_id,
- 	om_visit_event.id AS event_id,
+    om_visit_event.id AS event_id,
     om_visit.id,
     om_visit_cat.name AS builder,
     om_visit_event.parameter_id,
     om_visit_event.value,
     om_visit_event.tstamp,
+        CASE
+            WHEN planning_unit.plan_execute_date IS NOT NULL THEN 'PLANIFICAT'::text
+            ELSE NULL::text
+        END AS planning,
     node.node_id,
     node.mu_id,
     concat(cat_location.street_name, ' - ', cat_species.species) AS mu_name,
     node.the_geom,
     om_visit_cat.id AS expl_id,
     om_visit_event.value AS from_date
-   FROM selector_date, om_visit
+   FROM selector_date,
+    om_visit
      LEFT JOIN om_visit_event ON om_visit.id = om_visit_event.visit_id
      LEFT JOIN om_visit_x_node ON om_visit.id = om_visit_x_node.visit_id
      JOIN node ON node.node_id::text = om_visit_x_node.node_id::text
      JOIN om_visit_cat ON om_visit_cat.id = om_visit.visitcat_id
-       LEFT JOIN cat_mu ON node.mu_id = cat_mu.id
-  LEFT JOIN cat_species ON cat_mu.species_id = cat_species.id
-  LEFT JOIN cat_location ON cat_mu.location_id = cat_location.id
-  WHERE (om_visit_event.value IS NOT NULL  and om_visit_event.value::date::text >= selector_date.from_date::text 
-    AND om_visit_event.value::date::text <= selector_date.to_date::text )
-  AND parameter_id ilike 'tala%' AND cur_user=current_user ORDER BY om_visit_event.id, node.mu_id;
+     LEFT JOIN cat_mu ON node.mu_id = cat_mu.id
+     LEFT JOIN cat_species ON cat_mu.species_id = cat_species.id
+     LEFT JOIN cat_location ON cat_mu.location_id = cat_location.id
+     LEFT JOIN planning_unit ON node.node_id::text = planning_unit.node_id::text AND om_visit_event.value::date = planning_unit.plan_execute_date AND om_visit.class_id = 1
+  WHERE om_visit_event.value IS NOT NULL AND om_visit_event.value::date::text >= selector_date.from_date::text AND om_visit_event.value::date::text <= selector_date.to_date::text AND om_visit_event.parameter_id::text ~~* 'tala%'::text AND selector_date.cur_user = "current_user"()::text
+  ORDER BY om_visit_event.id, node.mu_id;
 
 
 
@@ -312,7 +321,7 @@ CREATE OR REPLACE VIEW v_irrigation_executed AS
   AND parameter_id ilike 'reg%' AND cur_user=current_user ORDER BY om_visit_event.id, node.mu_id;
 
 
-
+DROP VIEW IF EXISTS v_trim_executed; 
 CREATE OR REPLACE VIEW v_trim_executed AS 
  SELECT row_number() OVER (ORDER BY om_visit_event.id) AS row_id,
     om_visit_event.id AS event_id,
@@ -321,14 +330,22 @@ CREATE OR REPLACE VIEW v_trim_executed AS
     om_visit_event.parameter_id,
     om_visit_event.value,
     om_visit_event.tstamp,
+        CASE
+            WHEN planning_unit.plan_execute_date IS NOT NULL THEN 'PODA UNITARIA'::text
+            WHEN planning.plan_execute_date IS NOT NULL THEN 'PODA POBLACION'::text
+            ELSE NULL::text
+        END AS planning,
     node.node_id,
     node.mu_id,
     concat(cat_location.street_name, ' - ', cat_species.species) AS mu_name,
     om_visit_event.ext_code,
+    om_visit_work_x_node.work_cost,
     node.the_geom,
     om_visit_cat.id AS expl_id,
     om_visit_event.value AS from_date
-   FROM selector_date, selector_expl,  om_visit
+   FROM selector_date,
+    selector_expl,
+    om_visit
      LEFT JOIN om_visit_event ON om_visit.id = om_visit_event.visit_id
      LEFT JOIN om_visit_x_node ON om_visit.id = om_visit_x_node.visit_id
      JOIN node ON node.node_id::text = om_visit_x_node.node_id::text
@@ -336,9 +353,10 @@ CREATE OR REPLACE VIEW v_trim_executed AS
      LEFT JOIN cat_mu ON node.mu_id = cat_mu.id
      LEFT JOIN cat_species ON cat_mu.species_id = cat_species.id
      LEFT JOIN cat_location ON cat_mu.location_id = cat_location.id
-  WHERE om_visit_event.value::date::text > selector_date.from_date::text AND om_visit_event.value::date::text < selector_date.to_date::text 
-  AND selector_expl.expl_id = om_visit_cat.id AND om_visit_event.parameter_id::text ~~* 'poda%'::text AND selector_expl.cur_user = "current_user"()::text 
-  AND selector_date.cur_user = "current_user"()::text
+     LEFT JOIN om_visit_work_x_node ON om_visit_work_x_node.event_id = om_visit_event.id
+     LEFT JOIN planning_unit ON node.node_id::text = planning_unit.node_id::text AND om_visit_event.value::date = planning_unit.plan_execute_date AND om_visit.class_id = 1
+     LEFT JOIN planning ON node.mu_id = planning.mu_id AND om_visit_event.value::date = planning.plan_execute_date AND om_visit.class_id = 2
+  WHERE om_visit_event.value::date::text > selector_date.from_date::text AND om_visit_event.value::date::text < selector_date.to_date::text AND selector_expl.expl_id = om_visit_cat.id AND om_visit_event.parameter_id::text ~~* 'poda%'::text AND selector_expl.cur_user = "current_user"()::text AND selector_date.cur_user = "current_user"()::text
   ORDER BY om_visit_event.id, node.mu_id;
 
 

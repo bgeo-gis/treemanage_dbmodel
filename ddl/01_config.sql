@@ -64,6 +64,8 @@ CREATE SEQUENCE version_id_seq
     NO MAXVALUE
     CACHE 1;
 
+
+
 -----------------
 --audit
 -----------------
@@ -78,28 +80,105 @@ CREATE TABLE audit_cat_error (
     CONSTRAINT audit_cat_error_log_level_check CHECK ((log_level = ANY (ARRAY[0, 1, 2, 3])))
 );
 
+
+CREATE TABLE audit_cat_param_user (
+    id text NOT NULL,
+    context text,
+    description text,
+    sys_role_id character varying(30),
+    qgis_message text,
+    dv_table text,
+    dv_column text,
+    dv_clause text,
+    data_type text,
+    label text,
+    dv_querytext text,
+    dv_parent_id text,
+    isenabled boolean,
+    layout_id integer,
+    layout_order integer,
+    project_type character varying,
+    isparent boolean,
+    dv_querytext_filterc text,
+    feature_field_id text,
+    feature_dv_parent_value text,
+    isautoupdate boolean,
+    datatype character varying(30),
+    widgettype character varying(30),
+    vdefault text
+);
+
+CREATE TABLE audit_cat_table (
+    id text NOT NULL,
+    context text,
+    description text,
+    sys_role_id character varying(30),
+    sys_criticity smallint,
+    sys_rows text,
+    qgis_role_id character varying(30),
+    qgis_criticity smallint,
+    qgis_message text,
+    sys_sequence text,
+    sys_sequence_field text
+);
+
+CREATE TABLE audit_check_project (
+    id serial NOT NULL,
+    table_id text,
+    table_host text,
+    table_dbname text,
+    table_schema text,
+    fprocesscat_id integer,
+    criticity smallint,
+    enabled boolean,
+    message text,
+    tstamp timestamp without time zone DEFAULT now(),
+    user_name text DEFAULT "current_user"(),
+    observ text
+);
 -----------------
 --config
 -----------------
 
 CREATE TABLE config_param_system (
-    id integer NOT NULL PRIMARY KEY,
+    id serial NOT NULL,
     parameter character varying(50),
     value text NOT NULL,
     data_type character varying(20),
     context character varying(50),
-    descript text
+    descript text,
+    label text,
+    dv_querytext text,
+    dv_filterbyfield text,
+    isenabled boolean,
+    layout_id integer,
+    layout_order integer,
+    project_type character varying,
+    dv_isparent boolean,
+    isautoupdate boolean,
+    datatype character varying,
+    widgettype character varying,
+    tooltip text,
+    ismandatory boolean,
+    iseditable boolean,
+    reg_exp text,
+    dv_orderby_id boolean,
+    dv_isnullvalue boolean,
+    stylesheet json,
+    widgetcontrols json,
+    placeholder text
 );
 
 
 CREATE TABLE config_param_user (
-    id integer NOT NULL PRIMARY KEY,
+    id serial NOT NULL PRIMARY KEY,
     parameter character varying(50),
     value text,
     data_type character varying(20),
     cur_user character varying(30),
     context character varying(50),
-    descript text
+    descript text,
+    ismandatory boolean
 );
 
 CREATE TABLE sys_feature_cat (
@@ -111,7 +190,7 @@ CREATE TABLE sys_feature_cat (
 );
 
 CREATE TABLE version_tm (
-    id integer NOT NULL PRIMARY KEY,
+    id serial NOT NULL PRIMARY KEY,
     giswater character varying(16) NOT NULL,
     wsoftware character varying(16) NOT NULL,
     postgres character varying(512) NOT NULL,
@@ -120,12 +199,24 @@ CREATE TABLE version_tm (
     language character varying(50) NOT NULL,
     epsg integer NOT NULL
 );
+
+CREATE TABLE version (
+    id integer DEFAULT nextval('version_id_seq'::regclass) NOT NULL,
+    giswater character varying(16) NOT NULL,
+    wsoftware character varying(16) NOT NULL,
+    postgres character varying(512) NOT NULL,
+    postgis character varying(512) NOT NULL,
+    date timestamp(6) without time zone DEFAULT now() NOT NULL,
+    language character varying(50) NOT NULL,
+    epsg integer NOT NULL
+);
+
 -----------------
 --bmaps config
 -----------------
 
 CREATE TABLE config_client_dvalue (
-    id integer NOT NULL PRIMARY KEY,
+    id serial NOT NULL PRIMARY KEY,
     table_id text,
     column_id text,
     dv_table text,
@@ -136,7 +227,7 @@ CREATE TABLE config_client_dvalue (
 );
 
 CREATE TABLE config_client_forms (
-    id integer NOT NULL PRIMARY KEY,
+    id serial NOT NULL PRIMARY KEY,
     location_type character varying(50) NOT NULL,
     project_type character varying(50) NOT NULL,
     table_id character varying(50) NOT NULL,
@@ -151,41 +242,6 @@ CREATE TABLE config_client_forms (
     dev_alias character varying(50)
 );
 
-
-
-CREATE TABLE config_web_fields (
-    id integer NOT NULL PRIMARY KEY,
-    table_id character varying(50),
-    name character varying(30),
-    is_mandatory boolean,
-    "dataType" text,
-    field_length integer,
-    num_decimals integer,
-    placeholder text,
-    label text,
-    type text,
-    dv_table text,
-    dv_id_column text,
-    dv_name_column text,
-    sql_text text,
-    is_enabled boolean,
-    orderby integer
-);
-
-CREATE TABLE config_web_forms (
-    id integer NOT NULL PRIMARY KEY,
-    table_id character varying(50),
-    query_text text,
-    device integer
-);
-
-CREATE TABLE config_web_layer_tab (
-    id integer NOT NULL PRIMARY KEY,
-    table_id character varying(50),
-    formtab text,
-    formname text,
-    formid text
-);
 
 
 -----------------

@@ -103,7 +103,8 @@ CREATE TABLE cat_campaign (
     id integer DEFAULT nextval('cat_campaign_id_seq'::regclass) NOT NULL PRIMARY KEY,
     name character varying(150),
     start_date date,
-    end_date date
+    end_date date,
+    active boolean
 );
 
 CREATE TABLE cat_development (
@@ -151,7 +152,10 @@ CREATE TABLE cat_species (
     species character varying(150),
     common_name character varying(150),
     species_old character varying(150),
-    development_name character varying(150)
+    development_name character varying(150),
+    color_autumn text,
+    color_flowering text,
+    color_species text
 );
 
 
@@ -228,16 +232,6 @@ CREATE TABLE verify_node
 );
 
 
--- DROP TABLE selector_date;
-
-CREATE TABLE selector_date
-( id serial NOT NULL PRIMARY KEY,
-  from_date date,
-  to_date date,
-  context character varying(30),
-  cur_user text
-);
-
 --barrios
 CREATE TABLE cat_zone
 (id integer NOT NULL PRIMARY KEY,
@@ -255,6 +249,83 @@ location_id integer,
 street_number character varying(200),
 the_geom public.geometry(Point,SRID_VALUE)
 );
+
+CREATE TABLE exploitation
+(
+  expl_id integer NOT NULL,
+  name character varying(50) NOT NULL,
+  CONSTRAINT exploitation_pkey PRIMARY KEY (expl_id)
+);
+
+
+CREATE TABLE exploitation_x_user
+(  id serial NOT NULL PRIMARY KEY,
+  expl_id integer,
+  username character varying(50)
+  );
+
+CREATE TABLE cat_users (
+    id character varying(50) NOT NULL,
+    name character varying(150),
+    context character varying(50)
+);
+
+CREATE TABLE cat_team (
+    id serial NOT NULL,
+    idval text,
+    descript text,
+    active boolean DEFAULT true
+);
+
+CREATE TABLE om_visit_team_x_user (
+    team_id integer NOT NULL,
+    user_id character varying(16) NOT NULL,
+    starttime timestamp without time zone DEFAULT now(),
+    endtime timestamp without time zone
+);
+
+
+-----------------
+--SELECTORS 
+-----------------
+-- DROP TABLE selector_date;
+
+CREATE TABLE selector_date
+( id serial NOT NULL PRIMARY KEY,
+  from_date date,
+  to_date date,
+  context character varying(30),
+  cur_user text
+);
+
+CREATE TABLE selector_state
+(  state_id integer,
+  cur_user text,
+  CONSTRAINT selector_state_pkey PRIMARY KEY (state_id,cur_user)
+);
+
+CREATE TABLE selector_campaign
+( campaign_id integer,
+  cur_user text,
+  CONSTRAINT selector_campaign_pkey PRIMARY KEY (campaign_id,cur_user)
+);
+
+CREATE TABLE selector_composer (
+    field_id text NOT NULL,
+    field_value text,
+    user_name text NOT NULL
+);
+
+CREATE TABLE selector_expl (
+    expl_id integer NOT NULL,
+    cur_user text NOT NULL
+);
+
+CREATE TABLE selector_species (
+    species_id integer NOT NULL,
+    cur_user text NOT NULL
+);
+
 -----------------
 --add sequence to table
 -----------------

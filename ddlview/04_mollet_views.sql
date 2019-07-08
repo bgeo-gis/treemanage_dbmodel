@@ -137,7 +137,7 @@ CREATE OR REPLACE VIEW v_web_review_node AS
 
 
 --view with the last visit made on every node
-CREATE MATERIALIZED VIEW .v_last_work AS 
+CREATE MATERIALIZED VIEW v_last_work AS 
  SELECT DISTINCT ON (node.node_id) node.node_id,
     node.the_geom,
     a.parameter_id,
@@ -151,3 +151,46 @@ CREATE MATERIALIZED VIEW .v_last_work AS
           WHERE om_visit_x_node_1.node_id::text = node.node_id::text
           ORDER BY om_visit_x_node_1.node_id, om_visit_event_1.tstamp DESC) a ON true
 WITH DATA;
+
+
+CREATE VIEW v_price_compare AS
+ SELECT final_result.type,
+    final_result."Campanya 2017/2018",
+    final_result."Campanya 2018/2019",
+    final_result."Escoles nadal 2018 - Lot 1",
+    final_result."Escoles nadal 2018 - Lot 2"
+   FROM public.crosstab('SELECT concat(cat_work.name,'' - '',cat_size.name) as type, campaign_id ,price 
+FROM cat_price 
+JOIN cat_work ON work_id=cat_work.id
+JOIN cat_size ON size_id=cat_size.id
+WHERE  campaign_id = ANY (''{1, 5, 6, 7}'') ORDER BY 1,2;'::text) final_result(type text, "Campanya 2017/2018" numeric, "Campanya 2018/2019" numeric, "Escoles nadal 2018 - Lot 1" numeric, "Escoles nadal 2018 - Lot 2" numeric);
+
+
+
+
+CREATE VIEW v_ultimas_plantaciones AS
+ SELECT node.node_id,
+    node.mu_id,
+    cat_location.street_name_concat AS location,
+    cat_species.species,
+    node.plant_date,
+        CASE
+            WHEN ((node.plant_date >= '2015-09-01'::date) AND (node.plant_date < '2016-09-01'::date)) THEN '2015/2016'::text
+            WHEN ((node.plant_date >= '2016-09-01'::date) AND (node.plant_date < '2017-09-01'::date)) THEN '2016/2017'::text
+            WHEN ((node.plant_date >= '2017-09-01'::date) AND (node.plant_date < '2018-09-01'::date)) THEN '2017/2018'::text
+            WHEN ((node.plant_date >= '2018-09-01'::date) AND (node.plant_date < '2019-09-01'::date)) THEN '2018/2019'::text
+            ELSE NULL::text
+        END AS campanya,
+    node.the_geom
+   FROM ((node
+     LEFT JOIN cat_location ON ((node.location_id = cat_location.id)))
+     LEFT JOIN cat_species ON ((node.species_id = cat_species.id)))
+  WHERE (((node.plant_date IS NOT NULL) AND (node.plant_date >= '2015-09-01'::date)) AND (node.plant_date < '2018-09-01'::date))
+  ORDER BY
+        CASE
+            WHEN ((node.plant_date >= '2015-09-01'::date) AND (node.plant_date < '2016-09-01'::date)) THEN '2015/2016'::text
+            WHEN ((node.plant_date >= '2016-09-01'::date) AND (node.plant_date < '2017-09-01'::date)) THEN '2016/2017'::text
+            WHEN ((node.plant_date >= '2017-09-01'::date) AND (node.plant_date < '2018-09-01'::date)) THEN '2017/2018'::text
+            WHEN ((node.plant_date >= '2018-09-01'::date) AND (node.plant_date < '2019-09-01'::date)) THEN '2018/2019'::text
+            ELSE NULL::text
+        END;    

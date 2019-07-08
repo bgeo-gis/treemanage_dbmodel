@@ -19,7 +19,7 @@
 
 	 IF TG_OP = 'INSERT' THEN
 	--Select all the data related to visit
-	 		SELECT om_visit.id,om_visit_parameter.id as parameter_id,om_visit_event.id as event_id, om_visit_event.tstamp,om_visit_x_node.node_id 
+	 		SELECT om_visit.id,om_visit_parameter.id as parameter_id,om_visit_event.id as event_id, om_visit_event.tstamp,om_visit_x_node.node_id,om_visit.startdate
 	 		INTO visit_aux FROM om_visit 
 	 		JOIN om_visit_event ON om_visit.id=om_visit_event.visit_id 
 	 		JOIN om_visit_parameter ON om_visit_parameter.id=om_visit_event.parameter_id 
@@ -35,14 +35,14 @@
 			
 	--check campaign dates
 			SELECT id INTO campaign_aux
-			FROM cat_campaign WHERE start_date<=date(visit_aux.tstamp) and end_date>=date(visit_aux.tstamp);
+			FROM cat_campaign WHERE start_date<=date(visit_aux.startdate) and end_date>=date(visit_aux.startdate);
 	--update planning or planning_unit, depending on the used parameter; update frequency count of unit planning
 			IF (SELECT parameter_type FROM om_visit_parameter WHERE id=visit_aux.parameter_id)='MULTIPLE' THEN
-				UPDATE planning SET plan_execute_date=date(visit_aux.tstamp) WHERE campaign_id=campaign_aux
+				UPDATE planning SET plan_execute_date=date(visit_aux.startdate) WHERE campaign_id=campaign_aux
 				and planning.mu_id=mu_aux and planning.work_id=work_aux;
 			ELSIF (SELECT parameter_type FROM om_visit_parameter WHERE id=visit_aux.parameter_id)='SIMPLE' THEN
 	raise notice 'campana,node_id,work,%,%,%',campaign_aux,visit_aux.node_id,work_aux;
-				UPDATE planning_unit SET plan_execute_date=date(visit_aux.tstamp), frequency_executed=frequency_executed+1 WHERE campaign_id=campaign_aux
+				UPDATE planning_unit SET plan_execute_date=date(visit_aux.startdate), frequency_executed=frequency_executed+1 WHERE campaign_id=campaign_aux
 				and planning_unit.node_id=visit_aux.node_id and planning_unit.work_id=work_aux;
 	 		END IF;
 
@@ -64,10 +64,10 @@
 
 	--check campaign
 			SELECT id INTO campaign_aux
-			FROM cat_campaign WHERE start_date<=date(visit_aux.tstamp) and end_date>=date(visit_aux.tstamp);
+			FROM cat_campaign WHERE start_date<=date(visit_aux.startdate) and end_date>=date(visit_aux.startdate);
 
 	--Update the execution data 
-	 		UPDATE planning SET plan_execute_date=date(visit_aux.tstamp) 
+	 		UPDATE planning SET plan_execute_date=date(visit_aux.startdate) 
 	 		WHERE planning.campaign_id=campaign_aux and planning.mu_id=mu_aux and planning.work_id=work_aux;
 
 	 ELSIF TG_OP = 'DELETE' THEN
@@ -84,7 +84,7 @@
 			FROM node WHERE node_id=visit_aux.node_id;
 	--check campaign
 			SELECT id INTO campaign_aux
-			FROM cat_campaign WHERE start_date<=date(visit_aux.tstamp) and end_date>=date(visit_aux.tstamp);
+			FROM cat_campaign WHERE start_date<=date(visit_aux.startdate) and end_date>=date(visit_aux.startdate);
 			
 	--check work_id
 			SELECT id INTO work_aux

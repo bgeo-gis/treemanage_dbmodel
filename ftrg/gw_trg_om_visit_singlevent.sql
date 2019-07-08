@@ -22,19 +22,17 @@ BEGIN
 		NEW.visit_id = (SELECT nextval('om_visit_id_seq'));
 	END IF;
 
-	IF NEW.startdate IS NULL THEN
+	IF NEW.startdate IS NOT NULL THEN
+        NEW.startdate = NEW.startdate::date::text;
+    ELSE
 		NEW.startdate = now();
 	END IF;
 
-	IF NEW.value IS NOT NULL THEN
-		NEW.value=NEW.value::date::text;
-	ELSE 
-		NEW.value=now()::date::text;
-	END IF;
 
 	    -- visit table
-            INSERT INTO om_visit(id, visitcat_id, ext_code, enddate, webclient_id, expl_id, the_geom, descript, is_done, class_id, suspendendcat_id, lot_id, status) 
-            VALUES (NEW.visit_id, NEW.visitcat_id, NEW.ext_code, NEW.enddate, NEW.webclient_id, NEW.expl_id, NEW.the_geom, NEW.descript, NEW.is_done, NEW.class_id, NEW.suspendendcat_id, NEW.lot_id, NEW.status);
+            INSERT INTO om_visit(id, visitcat_id, ext_code, startdate, enddate, webclient_id, expl_id, the_geom, descript, is_done, class_id, suspendendcat_id, lot_id, status) 
+            VALUES (NEW.visit_id, NEW.visitcat_id, NEW.ext_code, NEW.startdate, NEW.enddate, NEW.webclient_id, NEW.expl_id, NEW.the_geom, NEW.descript, NEW.is_done, NEW.class_id, 
+                NEW.suspendendcat_id, NEW.lot_id, NEW.status);
 
             -- event table
             INSERT INTO om_visit_event( event_code, visit_id, position_id, position_value, parameter_id, value, value1, value2, geom1, geom2, geom3, xcoord, ycoord, 

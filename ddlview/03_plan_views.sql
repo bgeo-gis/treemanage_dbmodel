@@ -16,6 +16,7 @@ CREATE VIEW v_edit_price AS
      JOIN cat_campaign ON ((cat_price.campaign_id = cat_campaign.id)))
   ORDER BY cat_price.work_id, cat_price.size_id;
 
+
 DROP VIEW IF EXISTS v_plan_mu;
 CREATE VIEW v_plan_mu AS
  SELECT row_number() OVER (ORDER BY cat_mu.id) AS row_number,
@@ -88,8 +89,7 @@ CREATE VIEW v_ui_planning_unit AS
      LEFT JOIN cat_size ON ((cat_size.id = planning_unit.size_id)));
 
 
---views for unitary planning of pruning (poda) and irrigation. Important: change the value of planning_unit.work_id, depending on data introduced in cat_work!!!
-DROP VIEW IF EXISTS v_plan_unit_poda;
+
 DROP VIEW IF EXISTS v_plan_unit_trim;
 CREATE VIEW v_plan_unit_trim AS 
  SELECT planning_unit.id,
@@ -113,7 +113,7 @@ CREATE VIEW v_plan_unit_trim AS
      LEFT JOIN cat_size ON cat_size.id = planning_unit.size_id
      WHERE planning_unit.work_id!=11;
 
-DROP VIEW IF EXISTS v_plan_unit_reg;
+
 DROP VIEW IF EXISTS v_plan_unit_irrigation;
 CREATE  VIEW v_plan_unit_irrigation AS 
  SELECT planning_unit.id,
@@ -137,5 +137,4 @@ CREATE  VIEW v_plan_unit_irrigation AS
      LEFT JOIN cat_work ON cat_work.id = planning_unit.work_id
      LEFT JOIN cat_size ON cat_size.id = planning_unit.size_id
      WHERE planning_unit.work_id=11;
-
 

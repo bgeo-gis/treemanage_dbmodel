@@ -21,7 +21,17 @@ ALTER TABLE node DROP CONSTRAINT IF EXISTS node_work_id_fkey;
 
 ALTER TABLE verify_node DROP CONSTRAINT IF EXISTS verify_node_verify_id_fkey;
 
-ALTER TABLE om_visit_work_x_node DROP CONSTRAINT om_visit_work_x_node_event_id_fkey;
+ALTER TABLE om_visit_work_x_node DROP CONSTRAINT IF EXISTS om_visit_work_x_node_event_id_fkey;
+
+ALTER TABLE exploitation_x_user DROP CONSTRAINT exploitation_x_user_expl_username_unique;
+ALTER TABLE exploitation_x_user DROP CONSTRAINT exploitation_x_user_expl_id_fkey;
+ALTER TABLE exploitation_x_user DROP CONSTRAINT exploitation_x_user_username_fkey;
+
+ALTER TABLE selector_expl DROP CONSTRAINT selector_expl_id_fkey;
+
+ALTER TABLE om_visitcat_x_user DROP CONSTRAINT visitcat_x_user_expl_username_unique;
+ALTER TABLE om_visitcat_x_user DROP CONSTRAINT visitcat_x_user_username_fkey;
+ALTER TABLE om_visitcat_x_user DROP CONSTRAINT visitcat_x_user_visitcat_id_fkey;
 
 
 --ADD
@@ -75,3 +85,22 @@ ALTER TABLE verify_node
 
 ALTER TABLE om_visit_work_x_node ADD CONSTRAINT om_visit_work_x_node_event_id_fkey FOREIGN KEY (event_id)
       REFERENCES om_visit_event (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE exploitation_x_user ADD CONSTRAINT exploitation_x_user_expl_username_unique UNIQUE(expl_id, username);
+
+ALTER TABLE exploitation_x_user
+  ADD CONSTRAINT exploitation_x_user_expl_id_fkey FOREIGN KEY (expl_id) REFERENCES exploitation (expl_id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE exploitation_x_user
+  ADD CONSTRAINT exploitation_x_user_username_fkey FOREIGN KEY (username) REFERENCES cat_users (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE selector_expl
+  ADD CONSTRAINT selector_expl_id_fkey FOREIGN KEY (expl_id) REFERENCES exploitation (expl_id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE om_visitcat_x_user ADD CONSTRAINT visitcat_x_user_expl_username_unique UNIQUE(visitcat_id, username);
+
+ALTER TABLE om_visitcat_x_user
+  ADD CONSTRAINT visitcat_x_user_username_fkey FOREIGN KEY (username) REFERENCES cat_users (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE RESTRICT;
+
+ALTER TABLE om_visitcat_x_user
+  ADD CONSTRAINT visitcat_x_user_visitcat_id_fkey FOREIGN KEY (visitcat_id) REFERENCES om_visit_cat (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE RESTRICT;

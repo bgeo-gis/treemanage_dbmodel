@@ -70,7 +70,6 @@ DROP VIEW IF EXISTS v_review_cat_mu;
  
 
 CREATE OR REPLACE VIEW v_events_executed AS 
- CREATE VIEW v_events_executed AS
  SELECT DISTINCT ON (om_visit_event.id) row_number() OVER (ORDER BY om_visit_event.id) AS row_id,
     om_visit_event.id AS event_id,
     om_visit.id,
@@ -879,7 +878,7 @@ CREATE VIEW v_remove_trunk_historical AS
 --incidents
 ----------
 
-DROP VIEW IF EXISTS v_incident_forecast:
+DROP VIEW IF EXISTS v_incident_forecast;
 CREATE VIEW v_incident_forecast AS
  SELECT DISTINCT ON (om_visit_event.id) row_number() OVER (ORDER BY om_visit_event.id) AS row_id,
     node.node_id,

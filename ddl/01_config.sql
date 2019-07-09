@@ -5,7 +5,7 @@ SET search_path='SCHEMA_NAME',public;
 -----------------
 --sequences
 -----------------
-
+/*
 CREATE SEQUENCE config_client_dvalue_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -34,7 +34,7 @@ CREATE SEQUENCE config_param_user_id_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-
+*/
 
 CREATE SEQUENCE config_web_fields_id_seq
     START WITH 95
@@ -211,6 +211,16 @@ CREATE TABLE version (
     epsg integer NOT NULL
 );
 
+CREATE TABLE temp_table (
+id serial PRIMARY KEY,
+fprocesscat_id smallint,
+text_column text,
+geom_point public.geometry(POINT, SRID_VALUE),
+geom_line public.geometry(LINESTRING, SRID_VALUE),
+geom_polygon public.geometry(MULTIPOLYGON, SRID_VALUE),
+user_name text DEFAULT current_user
+);
+
 -----------------
 --bmaps config
 -----------------
@@ -248,12 +258,12 @@ CREATE TABLE config_client_forms (
 --add sequence to table
 -----------------
 
-ALTER TABLE ONLY config_client_dvalue ALTER COLUMN id SET DEFAULT nextval('config_client_dvalue_id_seq'::regclass);
+--ALTER TABLE ONLY config_client_dvalue ALTER COLUMN id SET DEFAULT nextval('config_client_dvalue_id_seq'::regclass);
 
-ALTER TABLE ONLY config_client_forms ALTER COLUMN id SET DEFAULT nextval('config_client_forms_id_seq'::regclass);
+--ALTER TABLE ONLY config_client_forms ALTER COLUMN id SET DEFAULT nextval('config_client_forms_id_seq'::regclass);
 
-ALTER TABLE ONLY config_web_forms ALTER COLUMN id SET DEFAULT nextval('config_web_forms_id_seq'::regclass);
+--ALTER TABLE ONLY config_web_forms ALTER COLUMN id SET DEFAULT nextval('config_web_forms_id_seq'::regclass);
 
-ALTER TABLE ONLY config_web_layer_tab ALTER COLUMN id SET DEFAULT nextval('config_web_layer_tab_id_seq'::regclass);
+--ALTER TABLE ONLY config_web_layer_tab ALTER COLUMN id SET DEFAULT nextval('config_web_layer_tab_id_seq'::regclass);
 
-ALTER TABLE ONLY version_tm ALTER COLUMN id SET DEFAULT nextval('version_id_seq'::regclass);
+--ALTER TABLE ONLY version_tm ALTER COLUMN id SET DEFAULT nextval('version_id_seq'::regclass);

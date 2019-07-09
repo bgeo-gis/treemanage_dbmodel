@@ -15,7 +15,7 @@ INSERT INTO config_param_system VALUES (19, 'network_field_gully_code', 'code', 
 INSERT INTO config_param_system VALUES (22, 'hydrometer_urban_propierties_field_code', 'connec_id', NULL, 'searchplus', NULL);
 INSERT INTO config_param_system VALUES (11, 'network_layer_arc', 'v_edit_arc', NULL, 'searchplus', NULL);
 INSERT INTO config_param_system VALUES (12, 'network_layer_connec', 'v_edit_connec', NULL, 'searchplus', NULL);
-INSERT INTO config_param_system VALUES (2, 'doc_absolute_path', 'c:\'', '1', '1', NULL);
+INSERT INTO config_param_system VALUES (2, 'doc_absolute_path', 'c:\', '1', '1', NULL);
 INSERT INTO config_param_system VALUES (25, 'hydrometer_field_urban_propierties_code', 'connec_id', NULL, 'searchplus', NULL);
 INSERT INTO config_param_system VALUES (15, 'network_layer_node', 'v_edit_node', NULL, 'searchplus', NULL);
 INSERT INTO config_param_system VALUES (24, 'hydrometer_field_code', 'hydrometer_id', NULL, 'searchplus', NULL);

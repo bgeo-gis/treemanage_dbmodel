@@ -142,12 +142,12 @@ CREATE MATERIALIZED VIEW v_last_work AS
     node.the_geom,
     a.parameter_id,
     a.value
-   FROM .node
+   FROM node
      JOIN LATERAL ( SELECT DISTINCT ON (om_visit_x_node_1.node_id) om_visit_x_node_1.node_id,
             om_visit_event_1.parameter_id,
             om_visit_event_1.value
-           FROM .om_visit_event om_visit_event_1
-             LEFT JOIN .om_visit_x_node om_visit_x_node_1 ON om_visit_x_node_1.visit_id = om_visit_event_1.visit_id
+           FROM om_visit_event om_visit_event_1
+             LEFT JOIN om_visit_x_node om_visit_x_node_1 ON om_visit_x_node_1.visit_id = om_visit_event_1.visit_id
           WHERE om_visit_x_node_1.node_id::text = node.node_id::text
           ORDER BY om_visit_x_node_1.node_id, om_visit_event_1.tstamp DESC) a ON true
 WITH DATA;
@@ -166,31 +166,3 @@ JOIN cat_size ON size_id=cat_size.id
 WHERE  campaign_id = ANY (''{1, 5, 6, 7}'') ORDER BY 1,2;'::text) final_result(type text, "Campanya 2017/2018" numeric, "Campanya 2018/2019" numeric, "Escoles nadal 2018 - Lot 1" numeric, "Escoles nadal 2018 - Lot 2" numeric);
 
 
-
-
-CREATE VIEW v_ultimas_plantaciones AS
- SELECT node.node_id,
-    node.mu_id,
-    cat_location.street_name_concat AS location,
-    cat_species.species,
-    node.plant_date,
-        CASE
-            WHEN ((node.plant_date >= '2015-09-01'::date) AND (node.plant_date < '2016-09-01'::date)) THEN '2015/2016'::text
-            WHEN ((node.plant_date >= '2016-09-01'::date) AND (node.plant_date < '2017-09-01'::date)) THEN '2016/2017'::text
-            WHEN ((node.plant_date >= '2017-09-01'::date) AND (node.plant_date < '2018-09-01'::date)) THEN '2017/2018'::text
-            WHEN ((node.plant_date >= '2018-09-01'::date) AND (node.plant_date < '2019-09-01'::date)) THEN '2018/2019'::text
-            ELSE NULL::text
-        END AS campanya,
-    node.the_geom
-   FROM ((node
-     LEFT JOIN cat_location ON ((node.location_id = cat_location.id)))
-     LEFT JOIN cat_species ON ((node.species_id = cat_species.id)))
-  WHERE (((node.plant_date IS NOT NULL) AND (node.plant_date >= '2015-09-01'::date)) AND (node.plant_date < '2018-09-01'::date))
-  ORDER BY
-        CASE
-            WHEN ((node.plant_date >= '2015-09-01'::date) AND (node.plant_date < '2016-09-01'::date)) THEN '2015/2016'::text
-            WHEN ((node.plant_date >= '2016-09-01'::date) AND (node.plant_date < '2017-09-01'::date)) THEN '2016/2017'::text
-            WHEN ((node.plant_date >= '2017-09-01'::date) AND (node.plant_date < '2018-09-01'::date)) THEN '2017/2018'::text
-            WHEN ((node.plant_date >= '2018-09-01'::date) AND (node.plant_date < '2019-09-01'::date)) THEN '2018/2019'::text
-            ELSE NULL::text
-        END;    

@@ -88,7 +88,7 @@ CREATE SEQUENCE doc_x_visit_id_seq
 -----------------
 
 CREATE TABLE om_visit (
-    id bigint NOT NULL,
+    id bigint NOT NULL PRIMARY KEY,
     visitcat_id integer,
     ext_code character varying(30),
     startdate timestamp(6) without time zone DEFAULT ("left"((date_trunc('second'::text, now()))::text, 19))::timestamp without time zone,

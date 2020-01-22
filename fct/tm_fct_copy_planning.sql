@@ -5,9 +5,10 @@ This version of Giswater is provided by Giswater Association
 */
 
 --FUNCTION CODE: 2786
---SELECT SCHEMA_NAME.gw_fct_check_importdxf();
+-- DROP FUNCTION SCHEMA_NAME.tm_fct_copy_planning(json);
+
 CREATE OR REPLACE FUNCTION SCHEMA_NAME.tm_fct_copy_planning(p_data json)
-RETURNS json AS
+  RETURNS json AS
 $BODY$
 /*
 SELECT tm_fct_copy_planning($${"client":{"device":9, "infoType":100, "lang":"ES"}, 
@@ -48,8 +49,9 @@ BEGIN
 	v_total_campaign := ((p_data ->>'data')::json->>'parameters')::json->>'cbx_campaigns'::text;
 	v_istotal := ((p_data ->>'data')::json->>'parameters')::json->>'chk_campaign'::text;
 
-	DELETE FROM planning WHERE campaign_id = v_new_campaign;
-
+	IF v_isundone IS TRUE  OR v_istotal IS TRUE THEN
+		DELETE FROM planning WHERE campaign_id = v_new_campaign;
+	END IF;
 	--copy undone data from selected campaign
 	IF v_isundone IS TRUE THEN
 		INSERT INTO planning(mu_id, work_id, campaign_id,  builder_id,  comment)
@@ -60,10 +62,11 @@ BEGIN
 
 	--copy planning defined from selected campaign
 	IF v_istotal IS TRUE THEN
-		INSERT INTO planning(mu_id, work_id, campaign_id, builder_id, comment)
-	    SELECT mu_id, work_id, v_new_campaign, builder_id, comment
+	INSERT INTO planning(mu_id, work_id, campaign_id, builder_id, comment)
+	    SELECT mu_id, work_id, v_new_campaign, builder_id, CONCAT('COPIED FROM CAMPAIGN: ',v_total_campaign)
 	    FROM planning WHERE campaign_id = v_total_campaign AND plan_execute_date IS NULL 
-	    ON CONFLICT (mu_id, campaign_id) DO NOTHING;
+	    AND mu_id NOT IN (SELECT mu_id FROM planning WHERE campaign_id=v_new_campaign);
+	    
 	END IF;
 
 	--update prices for planning

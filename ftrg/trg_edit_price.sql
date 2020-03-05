@@ -26,8 +26,7 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
-ALTER FUNCTION SCHEMA_NAME.trg_edit_price()
-  OWNER TO geoadmin;
+
 
 
 

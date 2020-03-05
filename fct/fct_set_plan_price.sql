@@ -17,6 +17,8 @@ tree_num_aux integer;
 BEGIN
 
  	SET search_path = "SCHEMA_NAME", public;
+	--check if mu_id still exists
+IF mu_id_aux IN (SELECT DISTINCT mu_id FROM node) THEN
 --sum the price of the selected works for the selected cat_mu
 	price_aux=(select sum(cat_price.price)FROM cat_mu  LEFT JOIN node ON cat_mu.id = node.mu_id
 	LEFT JOIN cat_work ON cat_work.id = cat_mu.work_id
@@ -31,10 +33,8 @@ BEGIN
 	UPDATE planning 
 	SET price=price_aux, tree_number=tree_num_aux
 	where mu_id=mu_id_aux and work_id=work_id_aux and campaign_id=campaign_aux;
-	
+END IF;
 END;
 $BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
-ALTER FUNCTION SCHEMA_NAME.set_plan_price(integer, integer, integer)
-  OWNER TO geoadmin;

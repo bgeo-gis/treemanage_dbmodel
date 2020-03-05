@@ -20,6 +20,10 @@ BEGIN
 
  IF TG_OP = 'INSERT' THEN
 
+IF NEW.plant_date is null then
+	RAISE EXCEPTION 'FALTA LA DATA DE LA PLANTACIO';
+END IF;
+
 --check if there is a mu that is a combination of location and species
  SELECT id INTO mu_aux FROM cat_mu WHERE location_id = NEW.location_id AND species_id=NEW.species_id;
 
@@ -97,7 +101,7 @@ ELSIF TG_OP = 'DELETE' THEN
 --delete values from node table and insert changes into review_node table
 	DELETE FROM node CASCADE WHERE node_id=OLD.node_id;
 	INSERT INTO  review_node (node_id, location_id, species_id, size_id, plant_date, observ, the_geom, state_id,work_id, work_id2, cur_user)
-	VALUES (OLD.node_id, OLD.location_id, OLD.species_id, OLD.size_id, OLD.plant_date, 'Eliminat', OLD.the_geom,OLD.state_id,OLD.work_id,OLD.work_id2, current_user);
+	VALUES (OLD.node_id, OLD.location_id, OLD.species_id, OLD.size_id, OLD.plant_date, 'Eliminat', OLD.the_geom,OLD.state,OLD.work_id,OLD.work_id2, current_user);
 
 	END IF;
 

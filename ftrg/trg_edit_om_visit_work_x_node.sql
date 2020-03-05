@@ -49,7 +49,7 @@ v_node = (SELECT node_id FROM om_visit_x_node WHERE  visit_id=v_visit_id);
 		
 		SELECT action_value FROM om_visit_parameter_x_parameter WHERE parameter_id1=v_parameter_id  AND parameter_id2 is null
 		INTO v_action_value;
-
+		RAISE NOTICE 'v_action_value,,v_node,%,%',v_action_value,v_node;
 		EXECUTE v_action_value || ' WHERE node_id='''||v_node||''';';
 
 	END IF;
@@ -57,7 +57,7 @@ v_node = (SELECT node_id FROM om_visit_x_node WHERE  visit_id=v_visit_id);
 	IF v_work_id!=v_work_id_old THEN
 		v_campaign=(select id FROM cat_campaign WHERE start_date<=NEW.work_date and end_date>=NEW.work_date AND active = TRUE);
 		v_price = (select price FROM cat_price WHERE size_id=v_size_id AND work_id=v_work_id AND campaign_id=v_campaign);
-		
+		raise notice 'v_price,%',v_price;
 		UPDATE om_visit_work_x_node SET price=v_price, work_cost = v_price * NEW.units
 		WHERE om_visit_work_x_node.event_id=NEW.event_id;
 	END IF;

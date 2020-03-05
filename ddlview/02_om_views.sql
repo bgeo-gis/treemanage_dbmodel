@@ -2,8 +2,9 @@
 SET search_path='SCHEMA_NAME',public;
 
 DROP VIEW IF EXISTS v_om_visit_work_x_node;
-CREATE VIEW v_om_visit_work_x_node AS
+CREATE OR REPLACE VIEW v_om_visit_work_x_node AS 
  SELECT om_visit_work_x_node.id,
+    om_visit_event.visit_id,
     om_visit_work_x_node.event_id,
     om_visit_work_x_node.node_id,
     cat_species.species,
@@ -16,15 +17,19 @@ CREATE VIEW v_om_visit_work_x_node AS
     om_visit_work_x_node.units,
     om_visit_work_x_node.work_cost,
     om_visit_event.ext_code,
+    sys_combo_values.idval AS status,
     node.the_geom
-   FROM (((((((om_visit_work_x_node
-     JOIN node ON (((node.node_id)::text = (om_visit_work_x_node.node_id)::text)))
-     LEFT JOIN om_visit_event ON ((om_visit_work_x_node.event_id = om_visit_event.id)))
-     LEFT JOIN cat_species ON ((node.species_id = cat_species.id)))
-     LEFT JOIN cat_location ON ((node.location_id = cat_location.id)))
-     LEFT JOIN cat_size ON ((om_visit_work_x_node.size_id = cat_size.id)))
-     LEFT JOIN cat_work ON ((om_visit_work_x_node.work_id = cat_work.id)))
-     LEFT JOIN cat_builder ON ((om_visit_work_x_node.builder_id = cat_builder.id)));
+   FROM om_visit_work_x_node
+     JOIN node ON node.node_id::text = om_visit_work_x_node.node_id::text
+     LEFT JOIN om_visit_event ON om_visit_work_x_node.event_id = om_visit_event.id
+     LEFT JOIN cat_species ON node.species_id = cat_species.id
+     LEFT JOIN cat_location ON node.location_id = cat_location.id
+     LEFT JOIN cat_size ON om_visit_work_x_node.size_id = cat_size.id
+     LEFT JOIN cat_work ON om_visit_work_x_node.work_id = cat_work.id
+     LEFT JOIN cat_builder ON om_visit_work_x_node.builder_id = cat_builder.id
+     LEFT JOIN om_visit ON om_visit.id = om_visit_event.visit_id
+     LEFT JOIN sys_combo_values ON sys_combo_values.id = om_visit.status AND sys_combo_values.sys_combo_cat_id = 3;
+
 
 
 -- View: v_ui_om_visit_x_node
@@ -90,10 +95,10 @@ CREATE VIEW v_ui_om_visitman_x_node AS
 
 
 DROP VIEW IF EXISTS v_om_visit_work_x_node_dates;
-
-CREATE VIEW v_om_visit_work_x_node_dates AS
+CREATE OR REPLACE VIEW v_om_visit_work_x_node_dates AS 
  SELECT DISTINCT ON (om_visit_work_x_node.event_id) row_number() OVER (ORDER BY node.mu_id) AS row_id,
     om_visit_work_x_node.event_id,
+    om_visit_event.visit_id,
     node.node_id,
     node.mu_id AS poblacion_id,
     concat(cat_location.street_name, ' - ', cat_species.species) AS poblacion_name,
@@ -105,22 +110,24 @@ CREATE VIEW v_om_visit_work_x_node_dates AS
     cat_campaign.id AS campana,
     om_visit_work_x_node.price AS precio,
     om_visit_event.ext_code,
+    sys_combo_values.idval AS status,
     node.the_geom
    FROM selector_date,
-    ((((((((((((node
-     JOIN om_visit_x_node ON (((om_visit_x_node.node_id)::text = (node.node_id)::text)))
-     JOIN om_visit_event ON ((om_visit_event.visit_id = om_visit_x_node.visit_id)))
-     JOIN om_visit ON ((om_visit_event.visit_id = om_visit.id)))
-     JOIN cat_mu ON ((cat_mu.id = node.mu_id)))
-     LEFT JOIN cat_species ON ((cat_mu.species_id = cat_species.id)))
-     LEFT JOIN cat_location ON ((cat_mu.location_id = cat_location.id)))
-     LEFT JOIN cat_work ON (((cat_work.parameter_id)::text = (om_visit_event.parameter_id)::text)))
-     LEFT JOIN om_visit_work_x_node ON ((om_visit_work_x_node.event_id = om_visit_event.id)))
-     LEFT JOIN cat_builder ON ((cat_builder.id = om_visit_work_x_node.builder_id)))
-     LEFT JOIN cat_size ON ((cat_size.id = node.size_id)))
-     LEFT JOIN cat_campaign ON (((((om_visit.startdate)::date > cat_campaign.start_date) AND ((om_visit.startdate)::date < cat_campaign.end_date)) OR ((((om_visit_event.tstamp)::date > cat_campaign.start_date) AND ((om_visit_event.tstamp)::date < cat_campaign.end_date)) AND (om_visit.startdate IS NULL)))))
-     LEFT JOIN planning ON ((((((node.mu_id = planning.mu_id) AND (cat_work.id = planning.work_id)) AND ((om_visit.startdate)::date > planning.plan_month_start)) AND ((om_visit.startdate)::date < planning.plan_month_end)) OR ((((om_visit_event.tstamp)::date > planning.plan_month_start) AND ((om_visit_event.tstamp)::date < planning.plan_month_end)) AND (om_visit.startdate IS NULL)))))
-  WHERE (((om_visit_work_x_node.work_date > selector_date.from_date) AND (om_visit_work_x_node.work_date < selector_date.to_date)) AND (selector_date.cur_user = ("current_user"())::text))
+    node
+     JOIN om_visit_x_node ON om_visit_x_node.node_id::text = node.node_id::text
+     JOIN om_visit_event ON om_visit_event.visit_id = om_visit_x_node.visit_id
+     JOIN om_visit ON om_visit_event.visit_id = om_visit.id
+     JOIN cat_mu ON cat_mu.id = node.mu_id
+     LEFT JOIN cat_species ON cat_mu.species_id = cat_species.id
+     LEFT JOIN cat_location ON cat_mu.location_id = cat_location.id
+     LEFT JOIN cat_work ON cat_work.parameter_id::text = om_visit_event.parameter_id::text
+     LEFT JOIN om_visit_work_x_node ON om_visit_work_x_node.event_id = om_visit_event.id
+     LEFT JOIN cat_builder ON cat_builder.id = om_visit_work_x_node.builder_id
+     LEFT JOIN cat_size ON cat_size.id = node.size_id
+     LEFT JOIN cat_campaign ON om_visit.startdate::date > cat_campaign.start_date AND om_visit.startdate::date < cat_campaign.end_date OR om_visit_event.tstamp::date > cat_campaign.start_date AND om_visit_event.tstamp::date < cat_campaign.end_date AND om_visit.startdate IS NULL
+     LEFT JOIN planning ON node.mu_id = planning.mu_id AND cat_work.id = planning.work_id AND om_visit.startdate::date > planning.plan_month_start AND om_visit.startdate::date < planning.plan_month_end OR om_visit_event.tstamp::date > planning.plan_month_start AND om_visit_event.tstamp::date < planning.plan_month_end AND om_visit.startdate IS NULL
+     LEFT JOIN sys_combo_values ON sys_combo_values.id = om_visit.status AND sys_combo_values.sys_combo_cat_id = 3
+  WHERE om_visit_work_x_node.work_date > selector_date.from_date AND om_visit_work_x_node.work_date < selector_date.to_date AND selector_date.cur_user = "current_user"()::text
   ORDER BY om_visit_work_x_node.event_id;
 
   

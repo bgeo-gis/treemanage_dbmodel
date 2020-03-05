@@ -220,3 +220,38 @@ CREATE TABLE exploitation_x_user
       ON UPDATE CASCADE ON DELETE RESTRICT,
   CONSTRAINT exploitation_x_user_expl_username_unique UNIQUE (expl_id, username)
 );
+
+
+
+ALTER TABLE planning_unit ADD COLUMN builder_id integer;
+ALTER TABLE planning_unit ADD COLUMN priority_id integer default 3;
+ALTER TABLE planning_unit ADD COLUMN comment text;
+ALTER TABLE planning_unit ADD COLUMN status text;-- (generada, tramitada, resolta)
+
+ALTER TABLE planning ADD COLUMN comment text;
+ALTER TABLE planning ADD COLUMN builder_id integer;
+
+ALTER TABLE exploitation ADD COLUMN active boolean;
+UPDATE exploitation SET active = true;
+
+ALTER TABLE planning 
+ADD UNIQUE (mu_id,campaign_id);
+
+
+SELECT setval('SCHEMA_NAME.config_client_forms_id_seq', (SELECT max(id) FROM config_client_forms), true);
+
+INSERT INTO config_client_forms(
+            location_type, project_type, table_id, column_id, column_index, 
+            status)
+    VALUES ('basic', 'basic_year_right', 'v_plan_mu_year', 'builder_id', 13, true);
+
+
+INSERT INTO config_client_forms(
+            location_type, project_type, table_id, column_id, column_index, 
+            status)
+    VALUES ('basic', 'basic_month_left', 'v_plan_mu_year', 'builder_id', 13, true);
+
+    INSERT INTO config_client_forms(
+            location_type, project_type, table_id, column_id, column_index, 
+            status)
+    VALUES ('basic', 'basic_month_right', 'v_plan_mu_year', 'builder_id', 14, true);

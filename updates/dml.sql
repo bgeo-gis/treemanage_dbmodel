@@ -88,3 +88,19 @@ INSERT INTO audit_cat_table VALUES ('config_param_system', NULL, NULL, 'role_edi
 INSERT INTO config_param_system VALUES (39, 'sys_role_permissions', TRUE, NULL,NULL, NULL);
 INSERT INTO config_param_system VALUES (40, 'sys_api_service', TRUE, NULL,NULL, NULL);
 INSERT INTO config_param_system VALUES (41, 'api_publish_user', 'qgisserver', NULL,NULL, NULL);
+
+INSERT INTO SCHEMA_NAME.config_client_forms(
+            id, location_type, project_type, table_id, column_id, column_index, status)
+VALUES (23,'basic','basic_year_right','v_plan_mu_year','builder_id',13,true);
+
+
+CREATE TABLE cat_priority (
+id serial PRIMARY KEY,
+name text);
+
+insert into cat_priority (id, name)
+values (1, 'Molt urgent');
+insert into cat_priority (id, name)
+values (2, 'Urgent');
+insert into cat_priority (id, name)
+values (3, 'Ordinari');

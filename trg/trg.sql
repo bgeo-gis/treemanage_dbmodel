@@ -46,3 +46,8 @@ CREATE TRIGGER trg_edit_plan_unit
   ON SCHEMA_NAME.v_ui_planning_unit
   FOR EACH ROW
   EXECUTE PROCEDURE SCHEMA_NAME.trg_edit_plan_unit();
+
+
+DROP TRIGGER IF EXISTS trg_edit_visit_plant ON SCHEMA_NAME.om_visit_x_node;
+
+CREATE TRIGGER trg_edit_visit_plant AFTER INSERT ON SCHEMA_NAME.om_visit_x_node FOR EACH ROW EXECUTE PROCEDURE SCHEMA_NAME.trg_edit_visit_plant();

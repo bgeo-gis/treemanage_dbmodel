@@ -39,6 +39,10 @@ v_node = (SELECT node_id FROM om_visit_x_node WHERE  visit_id=v_visit_id);
 	UPDATE om_visit_event SET ext_code=NEW.ext_code, parameter_id=v_parameter_id, value=NEW.work_date
 	WHERE om_visit_event.id=NEW.event_id;
 
+	IF (SELECT parameter_id FROM om_visit_event WHERE om_visit_event.id=NEW.event_id) = 'plantacio' THEN
+		UPDATE v_edit_node SET plant_date = NEW.work_date WHERE node_id = v_node;
+	END IF;
+	
 	UPDATE om_visit SET visitcat_id=v_builder_id, startdate=NEW.work_date
 	WHERE om_visit.id=v_visit_id;
 
